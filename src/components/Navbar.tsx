@@ -1,9 +1,151 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 
-export default function Navbar() {
+interface NavbarProps {
+  user?: { name: string };
+  onLogout?: () => void;
+}
+
+const Navbar = ({ user, onLogout }: NavbarProps) => {
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navLinks = [
+    { path: "/", label: "Home" },
+    { path: "/bookings", label: "My Bookings" },
+    ...(user
+      ? [{ path: "/profile", label: `Hi, ${user.name}` }]
+      : [{ path: "/login", label: "Login" }]),
+  ];
+
   return (
-    <nav>
-      <Link to="/">Home</Link>
+    <nav className="bg-gray-900 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <Link
+            to="/"
+            className="flex items-center text-2xl font-bold text-gray-900 dark:text-white"
+          >
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="h-10 w-10 mr-2 rounded-full"
+              loading="lazy"
+            />
+            <span>Theatre Booking System</span>
+          </Link>
+
+          <div className="hidden md:flex items-center space-x-4">
+            {navLinks.map(({ path, label }) => {
+              const isActive = location.pathname === path;
+              return (
+                <Link
+                  key={path}
+                  to={path}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? "bg-yellow-500 text-gray-900"
+                      : "hover:bg-gray-800 hover:text-yellow-400"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+
+            {!user ? (
+              <Link
+                to="/signup"
+                className="ml-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                Sign Up
+              </Link>
+            ) : (
+              <button
+                onClick={onLogout}
+                className="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                aria-label="Logout"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="p-2 rounded-md text-gray-400 hover:text-yellow-400 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              aria-label="Toggle menu"
+              aria-expanded={isMenuOpen}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={
+                    isMenuOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden bg-gray-800 px-4 pt-2 pb-4 space-y-1">
+          {navLinks.map(({ path, label }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                aria-current={isActive ? "page" : undefined}
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
+                  isActive
+                    ? "bg-yellow-500 text-gray-900"
+                    : "hover:bg-gray-700 hover:text-yellow-400"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            );
+          })}
+          {!user ? (
+            <Link
+              to="/signup"
+              className="block mt-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Sign Up
+            </Link>
+          ) : (
+            <button
+              onClick={() => {
+                setIsMenuOpen(false);
+                onLogout && onLogout();
+              }}
+              className="block mt-2 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              aria-label="Logout"
+            >
+              Logout
+            </button>
+          )}
+        </div>
+      )}
     </nav>
   );
-}
+};
+
+export default Navbar;
