@@ -1,44 +1,47 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // ✅ import useAuth
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { setToken } = useAuth(); // ✅ use token setter from context
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
- const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!email || !password) {
-    setError('Please enter email and password.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3000/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.message || 'Login failed. Please try again.');
+    if (!email || !password) {
+      setError("Please enter email and password.");
       return;
     }
 
-    localStorage.setItem('token', data.data);  
-    console.log('Logged in successfully:', data);
-    navigate('/');  
-  } catch (err) {
-    console.error('Login error:', err);
-    setError('Something went wrong. Please try again later.');
-  }
-};
+    try {
+      console.log(email, password);
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login failed. Please try again.");
+        return;
+      }
+
+      setToken(data.data); // ✅ use context to store token
+      console.log("Logged in successfully:", data);
+      navigate("/"); // ✅ redirect to homepage
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Something went wrong. Please try again later.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -49,24 +52,32 @@ const Login = () => {
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-        <form onSubmit={handleLogin} className="mt-8 space-y-6 py-55">
-          <div className="rounded-md shadow-sm -space-y-px-4 ">
+        <form onSubmit={handleLogin} className="mt-8 space-y-6">
+          <div className="rounded-md shadow-sm -space-y-px-3">
             <input
               type="email"
               placeholder="Email address"
-              className="appearance-none rounded-none relative block w-full px-3  py-2 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-yellow-500 focus:border-black-500 focus:z-10 sm:text-sm pt-"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-t-md placeholder-gray-500 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <input
               type="password"
               placeholder="Password"
-              className="appearance-none rounded-none relative block w-full px-3 py-2 mt-3 border border-gray-300 placeholder-gray-500 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 focus:z-10 sm:text-sm"
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-b-md mt-3 placeholder-gray-500 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-    
+          <div className="text-right mt-2">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="text-yellow-500 hover:underline text-sm font-medium"
+            >
+              Forgot Password?
+            </button>
+          </div>
           <button
             type="submit"
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
@@ -74,20 +85,11 @@ const Login = () => {
             Sign In
           </button>
         </form>
- {/* Forgot Password link */}
-          <div className="text-center mt-2">
-            <button
-              type="button"
-              onClick={() => navigate('/forgot-password')}
-              className="text-yellow-500 hover:underline text-sm font-medium"
-            >
-              Forgot Password?
-            </button>
-          </div>
+
         <p className="text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <button
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate("/signup")}
             className="text-yellow-500 hover:underline"
           >
             Sign Up

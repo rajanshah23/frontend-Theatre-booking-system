@@ -1,20 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";  
 
-interface NavbarProps {
-  user?: { name: string };
-  onLogout?: () => void;
-}
-
-const Navbar = ({ user, onLogout }: NavbarProps) => {
+const Navbar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();  
 
   const navLinks = [
     { path: "/", label: "Home" },
     { path: "/bookings", label: "My Bookings" },
-    ...(user
-      ? [{ path: "/profile", label: `Hi, ${user.name}` }]
+    ...(isAuthenticated
+      ? [{ path: "/profile", label: `Profile` }]
       : [{ path: "/login", label: "Login" }]),
   ];
 
@@ -24,7 +21,7 @@ const Navbar = ({ user, onLogout }: NavbarProps) => {
         <div className="flex justify-between items-center h-16">
           <Link
             to="/"
-            className="flex items-center text-2xl font-bold text-gray-900 dark:text-white"
+            className="flex items-center text-2xl font-bold text-white"
           >
             <img
               src="/logo.png"
@@ -54,7 +51,7 @@ const Navbar = ({ user, onLogout }: NavbarProps) => {
               );
             })}
 
-            {!user ? (
+            {!isAuthenticated ? (
               <Link
                 to="/signup"
                 className="ml-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
@@ -63,7 +60,7 @@ const Navbar = ({ user, onLogout }: NavbarProps) => {
               </Link>
             ) : (
               <button
-                onClick={onLogout}
+                onClick={logout}
                 className="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 aria-label="Logout"
               >
@@ -122,7 +119,7 @@ const Navbar = ({ user, onLogout }: NavbarProps) => {
               </Link>
             );
           })}
-          {!user ? (
+          {!isAuthenticated ? (
             <Link
               to="/signup"
               className="block mt-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
@@ -134,7 +131,7 @@ const Navbar = ({ user, onLogout }: NavbarProps) => {
             <button
               onClick={() => {
                 setIsMenuOpen(false);
-                onLogout && onLogout();
+                logout();  
               }}
               className="block mt-2 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
               aria-label="Logout"
