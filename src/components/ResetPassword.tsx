@@ -20,13 +20,13 @@ const ResetPassword = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("✅ Password reset successful! You can now login.");
-        // optionally redirect to login page here with navigate()
+        setMessage("Password reset successful! You can now login.");
+  
       } else {
-        setMessage(`⚠️ ${data.message || "Password reset failed"}`);
+        setMessage(` ${data.message || "Password reset failed"}`);
       }
     } catch (err) {
-      setMessage("⚠️ Network error. Please try again.");
+      setMessage(" Network error. Please try again.");
     } finally {
       setLoading(false);
     }

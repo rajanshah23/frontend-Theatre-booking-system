@@ -8,7 +8,7 @@ const ProfileLayout = () => {
 
   return (
     <div className="container mx-auto p-4 flex flex-col md:flex-row gap-6">
-      {/* Sidebar Navigation */}
+      
       <div className="w-full md:w-64 bg-white shadow p-4 rounded-lg h-fit">
         <h2 className="text-xl font-semibold mb-4">My Account</h2>
         <nav className="space-y-2">

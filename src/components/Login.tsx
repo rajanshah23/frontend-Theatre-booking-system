@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // ✅ import useAuth
+import { useAuth } from "../context/AuthContext"; 
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setToken } = useAuth(); // ✅ use token setter from context
+  const { setToken } = useAuth();  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +34,9 @@ const Login = () => {
         return;
       }
 
-      setToken(data.data); // ✅ use context to store token
+      setToken(data.data); 
       console.log("Logged in successfully:", data);
-      navigate("/"); // ✅ redirect to homepage
+      navigate("/"); 
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong. Please try again later.");
