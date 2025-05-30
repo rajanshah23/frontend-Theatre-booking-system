@@ -25,7 +25,7 @@ const ShowDetails = () => {
         if (!id) throw new Error('No show ID provided');
         const data = await getShow(id);
         setShow(data);
- 
+
         if (data.time) {
           setBooking(prev => ({ ...prev, showTime: data.time }));
         }
@@ -38,7 +38,7 @@ const ShowDetails = () => {
 
     fetchShow();
   }, [id]);
- 
+
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setBookingError(null);
@@ -63,7 +63,7 @@ const ShowDetails = () => {
       await bookTicket({
         showId: id,
         seats: booking.seats,
-        showTime: booking.showTime,  
+        showTime: booking.showTime,
         customerName: booking.name,
         customerEmail: booking.email
       });
@@ -94,7 +94,7 @@ const ShowDetails = () => {
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">Error loading show</h2>
           <p className="text-red-500 mb-4">{error}</p>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/shows')}
             className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
           >
             Browse Shows
@@ -104,9 +104,7 @@ const ShowDetails = () => {
     );
   }
 
-  if (!show) {
-    return null;
-  }
+  if (!show) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -123,7 +121,7 @@ const ShowDetails = () => {
           <div className="p-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-6">{show.title}</h1>
             <p className="text-gray-700 mb-8">{show.description}</p>
- 
+
             <form onSubmit={handleBooking} className="bg-gray-50 p-6 rounded-lg max-w-md mx-auto">
               <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-4">
                 <TicketIcon className="h-5 w-5 mr-2 text-yellow-500" />

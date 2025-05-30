@@ -12,7 +12,6 @@ export type Show = {
   image: string;
 };
 
- 
 const ShowCard = ({ show }: { show: Show }) => (
   <Link
     to={`/shows/${show.id}`}
@@ -36,7 +35,6 @@ const ShowCard = ({ show }: { show: Show }) => (
   </Link>
 );
 
- 
 const Pagination = ({
   currentPage,
   totalPages,
@@ -77,7 +75,6 @@ const Pagination = ({
   </div>
 );
 
- 
 const Home = () => {
   const [shows, setShows] = useState<Show[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +82,9 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const showsPerPage = 6;
+
+  // New state for greeting
+  const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
     const fetchShows = async () => {
@@ -101,6 +101,12 @@ const Home = () => {
     };
 
     fetchShows();
+
+    // Set greeting based on current time
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting('Good morning');
+    else if (hour < 18) setGreeting('Good afternoon');
+    else setGreeting('Good evening');
   }, []);
 
   const filteredShows = shows.filter((show) =>
@@ -131,6 +137,8 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         
+
         <h1 className="text-4xl font-bold text-gray-900 mb-6">Current Shows</h1>
 
         <input
@@ -167,4 +175,3 @@ const Home = () => {
 };
 
 export default Home;
- 

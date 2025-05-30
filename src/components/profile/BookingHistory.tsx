@@ -18,7 +18,7 @@ const BookingHistory = () => {
 useEffect(() => {
   const fetchBookings = async () => {
     try {
-      const response = await api.get('/user/booking-history');
+      const response = await api.get('/api/users/booking-history');
       if (response.data && response.data.length > 0) {
         setBookings(response.data);
       } else {

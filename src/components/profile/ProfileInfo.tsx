@@ -12,23 +12,32 @@ const ProfileInfo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
- useEffect(() => {
-  const fetchProfile = async () => {
+useEffect(() => {
+  const fetchData = async () => {
     try {
-      const response = await api.get('/user/profile');
+      const response = await api.get('/api/users/profile'); // or '/user/booking-history'
       if (response.data) {
-        setProfile(response.data);
+        setProfile(response.data); // or setBookings for BookingHistory
       } else {
-        setError("Profile data not found");
+        setError("No data received from server");
       }
     } catch (err) {
-      console.error("Profile fetch error:", err);
-      setError(err.response?.data?.message || "Failed to load profile");
+      console.error("Fetch error:", err);
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        setError(err.response.data?.message || `Server error: ${err.response.status}`);
+      } else if (err.request) {
+        // The request was made but no response was received
+        setError("No response from server. Please check your connection.");
+      } else {
+        // Something happened in setting up the request
+        setError("Request error: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
   };
-  fetchProfile();
+  fetchData();
 }, []);
 
   if (loading) return <p>Loading profile...</p>;
