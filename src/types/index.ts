@@ -5,6 +5,7 @@ export interface Show {
   description: string;
   date: string;
   time: string;
+    price: number; 
   totalSeats: number;
   image: string;
 }
@@ -12,7 +13,7 @@ export interface Show {
 export interface Booking {
   showId: string;
   userId?: string;   
-  seats: number;
+  seats: string;
   showTime: string;   
   customerName?: string;  
   customerEmail?: string;  

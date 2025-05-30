@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setToken } = useAuth();  
+  const { setToken, setUser } = useAuth();  // <-- get setUser too
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,6 @@ const Login = () => {
     }
 
     try {
-      console.log(email, password);
       const response = await fetch("http://localhost:3000/api/auth/login", {
         method: "POST",
         headers: {
@@ -34,7 +33,10 @@ const Login = () => {
         return;
       }
 
-      setToken(data.data); 
+      
+      setToken(data.data.token);  
+      setUser(data.data.user);     
+
       console.log("Logged in successfully:", data);
       navigate("/"); 
     } catch (err) {

@@ -1,12 +1,18 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from 'jwt-decode';
+
+interface User {
+  userId?: string;
+  role?: string;
+  [key: string]: any;
+}
 
 interface AuthContextProps {
   token: string | null;
-  user: any;
+  user: User | null;
   isAuthenticated: boolean;
   setToken: (token: string) => void;
+  setUser: (user: User | null) => void;
   logout: () => void;
 }
 
@@ -14,24 +20,36 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(() => localStorage.getItem('token'));
-  const [user, setUser] = useState<any>(null);
+  const [user, setUserState] = useState<User | null>(null);
 
+  // When token changes, update localStorage and decode user if user not explicitly set
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
-      try {
-        const decoded = jwtDecode(token);
-        setUser(decoded);
-      } catch {
-        setUser(null);
+      // If user is null, decode token to set user info
+      if (!user) {
+        try {
+          const decodedUser = jwtDecode<User>(token);
+          setUserState(decodedUser);
+        } catch {
+          setUserState(null);
+        }
       }
     } else {
       localStorage.removeItem('token');
-      setUser(null);
+      setUserState(null);
     }
   }, [token]);
 
-  const logout = () => setTokenState(null);
+  // Explicit setter for user, e.g. from login response
+  const setUser = (userData: User | null) => {
+    setUserState(userData);
+  };
+
+  const logout = () => {
+    setTokenState(null);
+    setUserState(null);
+  };
 
   return (
     <AuthContext.Provider
@@ -40,6 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         isAuthenticated: !!token,
         setToken: setTokenState,
+        setUser,
         logout,
       }}
     >
