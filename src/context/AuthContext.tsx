@@ -21,12 +21,11 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setTokenState] = useState<string | null>(() => localStorage.getItem('token'));
   const [user, setUserState] = useState<User | null>(null);
-
-  // When token changes, update localStorage and decode user if user not explicitly set
+ 
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
-      // If user is null, decode token to set user info
+     
       if (!user) {
         try {
           const decodedUser = jwtDecode<User>(token);
@@ -41,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [token]);
 
-  // Explicit setter for user, e.g. from login response
+  
   const setUser = (userData: User | null) => {
     setUserState(userData);
   };

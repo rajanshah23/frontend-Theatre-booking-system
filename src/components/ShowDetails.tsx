@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeftIcon, TicketIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  TicketIcon,
+  UserIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
 import { getShow, bookTicket } from "../services/show";
 import { Show } from "../types";
 import api from "../services/api";
@@ -13,6 +18,7 @@ const ShowDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [availableSeats, setAvailableSeats] = useState<string[]>([]);
+  const [bookingMode, setBookingMode] = useState<"single" | "multiple">("single");
   const [booking, setBooking] = useState({
     seats: [] as string[],
     showTime: "",
@@ -23,158 +29,111 @@ const ShowDetails = () => {
 
   const isAuthenticated = !!localStorage.getItem("token");
 
+  const seatRows = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
+  const seatsPerRow = 10;
+
   const toggleSeat = (seat: string) => {
     setBooking((prev) => {
+      if (bookingMode === "single") {
+        return { ...prev, seats: [seat] };
+      }
       const isSelected = prev.seats.includes(seat);
-      const newSeats = isSelected
-        ? prev.seats.filter((s) => s !== seat)
-        : [...prev.seats, seat];
-      return { ...prev, seats: newSeats };
+      return {
+        ...prev,
+        seats: isSelected
+          ? prev.seats.filter((s) => s !== seat)
+          : [...prev.seats, seat],
+      };
     });
   };
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBookingError(null);
 
     if (!isAuthenticated) {
-      navigate("/login", { state: { from: `/shows/${id}` } });
+      navigate("/login");
       return;
     }
 
-    if (!booking.showTime) {
-      setBookingError("Please select a show time");
+    if (!id) {
+      setBookingError("Invalid show ID.");
       return;
     }
 
-    if (booking.seats.length === 0) {
-      setBookingError("Please select at least one seat");
+    if (!booking.showTime || booking.seats.length === 0) {
+      setBookingError("Please select a show time and at least one seat.");
       return;
     }
+
+    setIsBooking(true);
+    setBookingError(null);
 
     try {
-      setIsBooking(true);
-      if (!id) throw new Error("No show ID");
-
       await bookTicket({
         showId: id,
-        seats: booking.seats.join(),
         showTime: booking.showTime,
-        customerName: "",
-        customerEmail: "",
+        seats: booking.seats.join(),
       });
 
-      navigate("/bookings", { state: { bookingSuccess: true } });
-    } catch (err) {
-      if (err.response?.status === 401) {
-        setBookingError("Session expired. Please login again.");
-        localStorage.removeItem("token");
-      } else {
-        setBookingError(err instanceof Error ? err.message : "Booking failed");
-      }
+      navigate("/profile");
+    } catch (error: any) {
+      setBookingError(error.message || "Failed to book tickets.");
     } finally {
       setIsBooking(false);
     }
   };
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setError("Please login to view show details");
-      setLoading(false);
-      return;
-    }
-
-    const fetchShowAndSeats = async () => {
+    const fetchShowDetails = async () => {
       try {
-        if (!id) throw new Error("No show ID provided");
-
-        const data = await getShow(id);
+        setLoading(true);
+        const data = await getShow(id!);
         setShow(data);
-
-        if (data.time) {
-          setBooking((prev) => ({ ...prev, showTime: data.time }));
-        }
-
-        const res = await api.get(`/shows/${id}/seats-availability`);
-        setAvailableSeats(res.data?.seats || []);
       } catch (err) {
-        setAvailableSeats([]);
-        if (err.response?.status === 401) {
-          setError("Session expired. Please login again.");
-          localStorage.removeItem("token");
-        } else {
-          setError(err instanceof Error ? err.message : "Failed to load show");
-        }
+        setError("Failed to load show details.");
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchAvailableSeats = async () => {
+      try {
+        setSeatsLoading(true);
+        const response = await api.get(`/shows/${id}/seats-availability`);
+
+        const availableSeatsMapped = response.data
+          .map((seat: any) => {
+            const num = parseInt(seat.seatNumber, 10);
+            if (isNaN(num)) return null;
+            const rowIndex = Math.floor((num - 1) / seatsPerRow);
+            const seatIndex = (num - 1) % seatsPerRow;
+            const row = seatRows[rowIndex] || "";
+            if (!row) return null;
+            return `${row}${seatIndex + 1}`;
+          })
+          .filter((seatId: string | null): seatId is string => seatId !== null);
+
+        setAvailableSeats(availableSeatsMapped);
+      } catch {
+        setAvailableSeats([]);
+      } finally {
         setSeatsLoading(false);
       }
     };
 
-    fetchShowAndSeats();
-  }, [id, isAuthenticated]);
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Authentication Required
-          </h2>
-          <p className="text-gray-600 mb-6">
-            You need to login to view this show.
-          </p>
-          <Link
-            to="/login"
-            state={{ from: `/shows/${id}` }}
-            className="px-6 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
-          >
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    if (id) {
+      fetchShowDetails();
+      fetchAvailableSeats();
+    }
+  }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-center">
-          <div className="h-12 w-12 bg-yellow-400 rounded-full mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading show details...</p>
-        </div>
-      </div>
-    );
+    return <div className="p-8 text-center">Loading show details...</div>;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Error loading show
-          </h2>
-          <p className="text-red-500 mb-6">{error}</p>
-          <div className="flex gap-4 justify-center">
-            <Link
-              to="/shows"
-              className="px-6 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
-            >
-              Browse Shows
-            </Link>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="p-8 text-center text-red-500">{error}</div>;
   }
-
-  if (!show) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -190,18 +149,55 @@ const ShowDetails = () => {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-6">
-              {show.title}
+              {show?.title}
             </h1>
-            <p className="text-gray-700 mb-8">{show.description}</p>
+            <p className="text-gray-700 mb-8">{show?.description}</p>
 
-            <form
-              onSubmit={handleBooking}
-              className="bg-gray-50 p-6 rounded-lg max-w-md mx-auto"
-            >
-              <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-4">
-                <TicketIcon className="h-5 w-5 mr-2 text-yellow-500" />
-                Book Tickets
-              </h3>
+            {show?.image && (
+              <div className="mb-8">
+                <img
+                  src={`http://localhost:3000/uploads/${
+                    show.image || "placeholder.jpg"
+                  }`}
+                  alt={show.title}
+                  className="w-80 h-100 object-cover"
+                />
+              </div>
+            )}
+
+            <form onSubmit={handleBooking} className="bg-gray-50 p-6 rounded-lg">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="flex items-center text-lg font-semibold text-gray-900">
+                  <TicketIcon className="h-5 w-5 mr-2 text-yellow-500" />
+                  Book Tickets
+                </h3>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setBookingMode("single")}
+                    className={`flex items-center px-3 py-1 text-sm rounded ${
+                      bookingMode === "single"
+                        ? "bg-yellow-500 text-white"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <UserIcon className="h-4 w-4 mr-1" />
+                    Single
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBookingMode("multiple")}
+                    className={`flex items-center px-3 py-1 text-sm rounded ${
+                      bookingMode === "multiple"
+                        ? "bg-yellow-500 text-white"
+                        : "bg-gray-200"
+                    }`}
+                  >
+                    <UserGroupIcon className="h-4 w-4 mr-1" />
+                    Group
+                  </button>
+                </div>
+              </div>
 
               {bookingError && (
                 <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
@@ -209,7 +205,7 @@ const ShowDetails = () => {
                 </div>
               )}
 
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Show Time
                 </label>
@@ -224,65 +220,62 @@ const ShowDetails = () => {
                 />
               </div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Seats ({booking.seats.length} selected)
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  {bookingMode === "single" ? "Select Your Seat" : "Select Seats"}
+                  {booking.seats.length > 0 && ` (${booking.seats.length} selected)`}
                 </label>
 
-                <select
-                  multiple
-                  value={booking.seats}
-                  onChange={(e) => {
-                    const selectedOptions = Array.from(
-                      e.target.selectedOptions
-                    ).map((option) => option.value);
-                    setBooking((prev) => ({ ...prev, seats: selectedOptions }));
-                  }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md h-40 focus:ring-yellow-500 focus:border-yellow-500"
-                >
-                  {seatsLoading ? (
-                    <option>Loading seats...</option>
-                  ) : availableSeats.length === 0 ? (
-                    <option disabled>No seats available</option>
-                  ) : (
-                    availableSeats.map((seat) => (
-                      <option key={seat} value={seat}>
-                        {seat}
-                      </option>
-                    ))
-                  )}
-                </select>
-
-                {/* Show selected seats for better visibility */}
-                {booking.seats.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-600">Selected seats:</p>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {booking.seats.map((seat) => (
-                        <span
-                          key={seat}
-                          className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded"
-                        >
-                          {seat}
-                        </span>
-                      ))}
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="text-center mb-8">
+                    <div className="h-6 bg-gray-800 mx-auto w-full rounded-md flex items-center justify-center">
+                      <span className="text-white font-medium">SCREEN</span>
                     </div>
+                    <p className="text-xs text-gray-500 mt-1">All seats face the screen</p>
                   </div>
-                )}
+
+                  <div className="flex flex-col items-center space-y-2">
+                    {seatRows.map((row) => (
+                      <div key={row} className="flex items-center space-x-2">
+                        <span className="text-sm font-medium w-4">{row}</span>
+                        <div className="flex space-x-1">
+                          {Array.from({ length: seatsPerRow }, (_, i) => {
+                            const seatNumber = i + 1;
+                            const seat = `${row}${seatNumber}`;
+                            const isAvailable = availableSeats.includes(seat);
+                            const isSelected = booking.seats.includes(seat);
+
+                            return (
+                              <button
+                                key={seat}
+                                type="button"
+                                onClick={() => isAvailable && toggleSeat(seat)}
+                                className={`w-8 h-8 flex items-center justify-center rounded text-xs ${
+                                  isSelected
+                                    ? "bg-yellow-500 text-white"
+                                    : isAvailable
+                                    ? "bg-gray-200 hover:bg-yellow-500 hover:text-white cursor-pointer"
+                                    : "bg-gray-300 cursor-not-allowed"
+                                }`}
+                                disabled={!isAvailable}
+                              >
+                                {seatNumber}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <button
                 type="submit"
-                disabled={isBooking || booking.seats.length === 0}
-                className={`w-full px-6 py-3 rounded-md text-white font-medium transition ${
-                  isBooking
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : booking.seats.length === 0
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-yellow-500 hover:bg-yellow-600"
-                }`}
+                disabled={isBooking}
+                className="w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isBooking ? "Processing..." : "Book Now"}
+                {isBooking ? "Booking..." : "Book Now"}
               </button>
             </form>
           </div>

@@ -16,7 +16,7 @@ const VerifyOtp = () => {
       const data = await res.json();
       if (res.ok) {
         setMessage("OTP verified! Please reset your password.");
-        // navigate or show reset password form
+    
       } else {
         setMessage(data.message || "Invalid OTP");
       }

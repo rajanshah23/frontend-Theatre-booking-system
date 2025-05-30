@@ -101,8 +101,7 @@ const Home = () => {
     };
 
     fetchShows();
-
-    // Set greeting based on current time
+ 
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good morning');
     else if (hour < 18) setGreeting('Good afternoon');

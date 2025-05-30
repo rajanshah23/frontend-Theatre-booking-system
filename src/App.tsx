@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import ShowDetails from "./components/ShowDetails";
@@ -24,10 +29,8 @@ const App = () => {
         <Navbar />
         <main className="flex-grow">
           <Routes>
-            {/* Redirect '/' to '/shows' */}
             <Route path="/" element={<Home />} />
 
-            {/* Public routes */}
             <Route path="/shows" element={<Home />} />
             <Route path="/shows/:id" element={<ShowDetails />} />
             <Route path="/login" element={<Login />} />
@@ -37,18 +40,30 @@ const App = () => {
             <Route path="/verify-otp" element={<VerifyOtp />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Profile section with nested routes */}
             <Route path="/profile" element={<ProfileLayout />}>
               <Route index element={<ProfileInfo />} />
               <Route path="booking-history" element={<BookingHistory />} />
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="reviews" element={<ReviewManager />} />
               <Route path="update" element={<UpdateProfileForm />} />
-              <Route path="*" element={<div className="p-8 text-center text-red-600">404: Page Not Found</div>} />
+              <Route
+                path="*"
+                element={
+                  <div className="p-8 text-center text-red-600">
+                    404: Page Not Found
+                  </div>
+                }
+              />
             </Route>
 
-            {/* Global 404 page for any unmatched routes */}
-            <Route path="*" element={<div className="p-8 text-center text-red-600">404: Page Not Found</div>} />
+            <Route
+              path="*"
+              element={
+                <div className="p-8 text-center text-red-600">
+                  404: Page Not Found
+                </div>
+              }
+            />
           </Routes>
         </main>
       </div>
