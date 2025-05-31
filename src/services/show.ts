@@ -1,17 +1,18 @@
+// services/show.ts
 import api from './api';
 import { Show, Booking } from '../types';
 
-// Get all shows
+ 
 export const getShows = async (): Promise<Show[]> => {
   try {
     const response = await api.get('/shows');
-    return response.data.data; // assuming backend responds { message, data }
+    return response.data.data;
   } catch (error) {
     throw new Error('Failed to fetch shows');
   }
 };
 
-// Get a single show by ID
+ 
 export const getShow = async (id: string): Promise<Show> => {
   try {
     const response = await api.get(`/shows/${id}`);
@@ -21,12 +22,33 @@ export const getShow = async (id: string): Promise<Show> => {
   }
 };
 
-// Book a ticket
+ 
 export const bookTicket = async (booking: Booking): Promise<void> => {
   try {
-    await api.post(`/shows/${booking.showId}/bookings`, booking);
+    for (const seatNumber of booking.seats) {
+      await api.post(`/shows/${booking.showId}/seats/book`, {
+        seatNumber: seatNumber.trim(),
+        showTime: booking.showTime,
+      });
+    }
   } catch (error: any) {
-    const message = error.response?.data?.message || 'Booking failed';
-    throw new Error(message);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      throw new Error(error.message);
+    } else {
+      throw new Error('Booking failed');
+    }
+  }
+};
+
+
+ 
+export const getSeatsAvailability = async (showId: string): Promise<{ seatNumber: string; status: string }[]> => {
+  try {
+    const response = await api.get(`/shows/${showId}/seats-availability`);
+    return response.data.data;
+  } catch (error) {
+    throw new Error('Failed to fetch seat availability');
   }
 };

@@ -27,7 +27,7 @@ const ChangePassword = () => {
 
     setLoading(true);
     try {
-      await api.put("/user/change-password", {
+      await api.put("/change-password", {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });

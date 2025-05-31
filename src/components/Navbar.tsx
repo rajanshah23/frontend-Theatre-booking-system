@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { BellIcon } from "@heroicons/react/24/outline"; // Ensure this package is installed
+import { BellIcon } from "@heroicons/react/24/outline";
 
 const Navbar = () => {
   const location = useLocation();
@@ -9,8 +9,38 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+ 
+  const [notifications, setNotifications] = useState<
+    { id: string; message: string; isRead: boolean; createdAt: string }[]
+  >([]);
+  const [isNotifDropdownOpen, setNotifDropdownOpen] = useState(false);
 
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const notifDropdownRef = useRef<HTMLDivElement | null>(null);
+
+ 
+  useEffect(() => {
+    const fetchedNotifications = [
+      {
+        id: "1",
+        message: "Your booking for Show A is confirmed!",
+        isRead: false,
+        createdAt: "2025-05-30T12:00:00Z",
+      },
+      {
+        id: "2",
+        message: "New review on Show B.",
+        isRead: true,
+        createdAt: "2025-05-29T09:30:00Z",
+      },
+    ];
+    setNotifications(fetchedNotifications);
+  }, []);
+
+ 
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -19,10 +49,31 @@ const Navbar = () => {
       ) {
         setProfileDropdownOpen(false);
       }
+      if (
+        notifDropdownRef.current &&
+        !notifDropdownRef.current.contains(event.target as Node)
+      ) {
+        setNotifDropdownOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+   
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id === id
+          ? {
+              ...n,
+              isRead: true,
+            }
+          : n
+      )
+    );
+ 
+  };
 
   const navLinks = [
     { path: "/", label: "Home" },
@@ -35,7 +86,7 @@ const Navbar = () => {
     <nav className="bg-gray-900 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+     
           <Link
             to="/"
             className="flex items-center text-2xl font-bold text-white"
@@ -49,7 +100,7 @@ const Navbar = () => {
             <span>Theatre Booking System</span>
           </Link>
 
-          {/* Desktop Menu */}
+ 
           <div className="hidden md:flex items-center space-x-4">
             {navLinks.map(({ path, label }) => {
               const isActive = location.pathname === path;
@@ -69,17 +120,45 @@ const Navbar = () => {
               );
             })}
 
-            {/* Notification Icon */}
-            <Link
-              to="/notifications"
-              aria-label="Notifications"
-              className="relative p-1 rounded-full text-yellow-400 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            >
-              <BellIcon className="h-6 w-6" />
-              <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
-            </Link>
+           
+            <div className="relative" ref={notifDropdownRef}>
+              <button
+                aria-label="Notifications"
+                className="relative p-1 rounded-full text-yellow-400 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                onClick={() => setNotifDropdownOpen((prev) => !prev)}
+              >
+                <BellIcon className="h-6 w-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
 
-            {/* Profile or Sign Up */}
+              {isNotifDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto bg-gray-800 rounded-md shadow-lg py-2 z-30">
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-2 text-sm text-gray-400">
+                      No notifications
+                    </div>
+                  ) : (
+                    notifications.map(({ id, message, isRead, createdAt }) => (
+                      <div
+                        key={id}
+                        onClick={() => markAsRead(id)}
+                        className={`px-4 py-2 cursor-pointer hover:bg-yellow-500 hover:text-gray-900 transition-colors duration-150 ${
+                          isRead ? "text-gray-400" : "font-semibold text-white"
+                        }`}
+                        title={new Date(createdAt).toLocaleString()}
+                      >
+                        {message}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+ 
             {!isAuthenticated ? (
               <Link
                 to="/signup"
@@ -145,7 +224,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+  
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -176,7 +255,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+    
       {isMenuOpen && (
         <div className="md:hidden bg-gray-800 px-4 pt-2 pb-4 space-y-1">
           {navLinks.map(({ path, label }) => {

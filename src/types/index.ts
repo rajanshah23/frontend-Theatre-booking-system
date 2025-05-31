@@ -5,16 +5,17 @@ export interface Show {
   description: string;
   date: string;
   time: string;
-    price: number; 
+  price: number;
   totalSeats: number;
   image: string;
+  showTimes: string[];  
 }
 
 export interface Booking {
   showId: string;
-  userId?: string;   
-  seats: string;
-  showTime: string;   
-  customerName?: string;  
-  customerEmail?: string;  
+  userId?: string;
+  seats: string[];
+  showTime: string;
+  customerName?: string;
+  customerEmail?: string;
 }

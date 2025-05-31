@@ -13,12 +13,11 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-// BookingHistory.tsx
+ 
 useEffect(() => {
   const fetchBookings = async () => {
     try {
-      const response = await api.get('/api/users/me/bookings');
+     const response = await api.get('/users/booking-history');
       if (response.data && response.data.length > 0) {
         setBookings(response.data);
       } else {

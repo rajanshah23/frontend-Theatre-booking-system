@@ -18,12 +18,12 @@ const ForgotPassword = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("✅ OTP sent to your email! Please check your inbox.");
+        setMessage(" OTP sent to your email! Please check your inbox.");
       } else {
-        setMessage(`⚠️ ${data.message || "Error sending OTP"}`);
+        setMessage(` ${data.message || "Error sending OTP"}`);
       }
     } catch (err) {
-      setMessage("⚠️ Network error. Please try again.");
+      setMessage(" Network error. Please try again.");
     } finally {
       setLoading(false);
     }

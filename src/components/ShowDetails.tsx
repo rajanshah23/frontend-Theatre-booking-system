@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { getShow, bookTicket } from "../services/show";
 import { Show } from "../types";
-import api from "../services/api";
+import { getSeatsAvailability } from "../services/show";
 
 const ShowDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +17,12 @@ const ShowDetails = () => {
   const [show, setShow] = useState<Show | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [availableSeats, setAvailableSeats] = useState<string[]>([]);
-  const [bookingMode, setBookingMode] = useState<"single" | "multiple">("single");
+  const [seatStatus, setSeatStatus] = useState<
+    Record<string, "available" | "booked" | "reserved">
+  >({});
+  const [bookingMode, setBookingMode] = useState<"single" | "multiple">(
+    "single"
+  );
   const [booking, setBooking] = useState({
     seats: [] as string[],
     showTime: "",
@@ -34,9 +38,7 @@ const ShowDetails = () => {
 
   const toggleSeat = (seat: string) => {
     setBooking((prev) => {
-      if (bookingMode === "single") {
-        return { ...prev, seats: [seat] };
-      }
+      if (bookingMode === "single") return { ...prev, seats: [seat] };
       const isSelected = prev.seats.includes(seat);
       return {
         ...prev,
@@ -49,18 +51,8 @@ const ShowDetails = () => {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isAuthenticated) {
-      navigate("/login");
-      return;
-    }
-
-    if (!id) {
-      setBookingError("Invalid show ID.");
-      return;
-    }
-
-    if (!booking.showTime || booking.seats.length === 0) {
+    if (!isAuthenticated) return navigate("/login");
+    if (!id || !booking.showTime || booking.seats.length === 0) {
       setBookingError("Please select a show time and at least one seat.");
       return;
     }
@@ -72,9 +64,8 @@ const ShowDetails = () => {
       await bookTicket({
         showId: id,
         showTime: booking.showTime,
-        seats: booking.seats.join(),
+        seats: booking.seats,
       });
-
       navigate("/profile");
     } catch (error: any) {
       setBookingError(error.message || "Failed to book tickets.");
@@ -89,7 +80,7 @@ const ShowDetails = () => {
         setLoading(true);
         const data = await getShow(id!);
         setShow(data);
-      } catch (err) {
+      } catch {
         setError("Failed to load show details.");
       } finally {
         setLoading(false);
@@ -99,23 +90,22 @@ const ShowDetails = () => {
     const fetchAvailableSeats = async () => {
       try {
         setSeatsLoading(true);
-        const response = await api.get(`/shows/${id}/seats-availability`);
+        const seatData = await getSeatsAvailability(id!);
 
-        const availableSeatsMapped = response.data
-          .map((seat: any) => {
-            const num = parseInt(seat.seatNumber, 10);
-            if (isNaN(num)) return null;
-            const rowIndex = Math.floor((num - 1) / seatsPerRow);
-            const seatIndex = (num - 1) % seatsPerRow;
-            const row = seatRows[rowIndex] || "";
-            if (!row) return null;
-            return `${row}${seatIndex + 1}`;
-          })
-          .filter((seatId: string | null): seatId is string => seatId !== null);
+        const seatStatusMap: Record<
+          string,
+          "available" | "booked" | "reserved"
+        > = {};
+        seatData.forEach(({ seatNumber, status }) => {
+          seatStatusMap[seatNumber] = status as
+            | "available"
+            | "booked"
+            | "reserved";
+        });
 
-        setAvailableSeats(availableSeatsMapped);
+        setSeatStatus(seatStatusMap);
       } catch {
-        setAvailableSeats([]);
+        setSeatStatus({});
       } finally {
         setSeatsLoading(false);
       }
@@ -127,20 +117,16 @@ const ShowDetails = () => {
     }
   }, [id]);
 
-  if (loading) {
+  if (loading)
     return <div className="p-8 text-center">Loading show details...</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-center text-red-500">{error}</div>;
-  }
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           to="/shows"
-          className="flex items-center text-gray-600 hover:text-yellow-500 mb-6 transition"
+          className="flex items-center text-gray-600 hover:text-yellow-500 mb-6"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Browse Shows
@@ -152,20 +138,20 @@ const ShowDetails = () => {
               {show?.title}
             </h1>
             <p className="text-gray-700 mb-8">{show?.description}</p>
-
             {show?.image && (
               <div className="mb-8">
                 <img
-                  src={`http://localhost:3000/uploads/${
-                    show.image || "placeholder.jpg"
-                  }`}
+                  src={`http://localhost:3000/uploads/${show.image}`}
                   alt={show.title}
                   className="w-80 h-100 object-cover"
                 />
               </div>
             )}
 
-            <form onSubmit={handleBooking} className="bg-gray-50 p-6 rounded-lg">
+            <form
+              onSubmit={handleBooking}
+              className="bg-gray-50 p-6 rounded-lg"
+            >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="flex items-center text-lg font-semibold text-gray-900">
                   <TicketIcon className="h-5 w-5 mr-2 text-yellow-500" />
@@ -204,7 +190,6 @@ const ShowDetails = () => {
                   {bookingError}
                 </div>
               )}
-
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Show Time
@@ -222,8 +207,11 @@ const ShowDetails = () => {
 
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  {bookingMode === "single" ? "Select Your Seat" : "Select Seats"}
-                  {booking.seats.length > 0 && ` (${booking.seats.length} selected)`}
+                  {bookingMode === "single"
+                    ? "Select Your Seat"
+                    : "Select Seats"}
+                  {booking.seats.length > 0 &&
+                    ` (${booking.seats.length} selected)`}
                 </label>
 
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -231,41 +219,77 @@ const ShowDetails = () => {
                     <div className="h-6 bg-gray-800 mx-auto w-full rounded-md flex items-center justify-center">
                       <span className="text-white font-medium">SCREEN</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">All seats face the screen</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      All seats face the screen
+                    </p>
                   </div>
 
-                  <div className="flex flex-col items-center space-y-2">
-                    {seatRows.map((row) => (
-                      <div key={row} className="flex items-center space-x-2">
-                        <span className="text-sm font-medium w-4">{row}</span>
-                        <div className="flex space-x-1">
-                          {Array.from({ length: seatsPerRow }, (_, i) => {
-                            const seatNumber = i + 1;
-                            const seat = `${row}${seatNumber}`;
-                            const isAvailable = availableSeats.includes(seat);
-                            const isSelected = booking.seats.includes(seat);
+                  {seatsLoading ? (
+                    <div className="text-center py-10 text-gray-600">
+                      Loading seats...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center space-y-2">
+                      {seatRows.map((row) => (
+                        <div key={row} className="flex items-center space-x-2">
+                          <span className="text-sm font-medium w-4">{row}</span>
+                          <div className="flex space-x-1">
+                            {Array.from({ length: seatsPerRow }, (_, i) => {
+                              const seat = `${row}${i + 1}`;
+                              const status = seatStatus[seat];
+                              const isSelected = booking.seats.includes(seat);
+                              let className =
+                                "w-8 h-8 flex items-center justify-center rounded text-xs font-semibold cursor-pointer ";
 
-                            return (
-                              <button
-                                key={seat}
-                                type="button"
-                                onClick={() => isAvailable && toggleSeat(seat)}
-                                className={`w-8 h-8 flex items-center justify-center rounded text-xs ${
-                                  isSelected
-                                    ? "bg-yellow-500 text-white"
-                                    : isAvailable
-                                    ? "bg-gray-200 hover:bg-yellow-500 hover:text-white cursor-pointer"
-                                    : "bg-gray-300 cursor-not-allowed"
-                                }`}
-                                disabled={!isAvailable}
-                              >
-                                {seatNumber}
-                              </button>
-                            );
-                          })}
+                              if (isSelected) {
+                                className += "bg-yellow-400 text-white";
+                              } else if (status === "booked") {
+                                className +=
+                                  "bg-red-500 text-white cursor-not-allowed";
+                              } else if (status === "reserved") {
+                                className +=
+                                  "bg-orange-400 text-white cursor-not-allowed";
+                              } else {
+                                className +=
+                                  "bg-gray-200 hover:bg-yellow-500 hover:text-white";
+                              }
+
+                              return (
+                                <button
+                                  key={seat}
+                                  type="button"
+                                  onClick={() => toggleSeat(seat)}
+                                  className={className}
+                                  disabled={
+                                    status === "booked" || status === "reserved"
+                                  }
+                                >
+                                  {i + 1}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex justify-center gap-6 text-sm text-center">
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 bg-gray-200 rounded"></div>{" "}
+                      Available
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 bg-yellow-400 rounded"></div>{" "}
+                      Selected
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 bg-red-500 rounded"></div> Booked
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-4 h-4 bg-orange-400 rounded"></div>{" "}
+                      Reserved
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,9 +297,9 @@ const ShowDetails = () => {
               <button
                 type="submit"
                 disabled={isBooking}
-                className="w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold hover:bg-yellow-600 transition disabled:opacity-50"
               >
-                {isBooking ? "Booking..." : "Book Now"}
+                {isBooking ? "Booking..." : "Confirm Booking"}
               </button>
             </form>
           </div>

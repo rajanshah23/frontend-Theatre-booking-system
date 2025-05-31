@@ -83,7 +83,7 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const showsPerPage = 6;
 
-  // New state for greeting
+ 
   const [greeting, setGreeting] = useState('');
 
   useEffect(() => {

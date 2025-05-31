@@ -19,7 +19,7 @@ import Bookings from "./components/Booking";
 import BookingHistory from "./components/profile/BookingHistory";
 import ChangePassword from "./components/profile/ChangePassword";
 import ProfileInfo from "./components/profile/ProfileInfo";
-import ReviewManager from "./components/profile/ReviewManager";
+ 
 import UpdateProfileForm from "./components/profile/UpdateProfileForm";
 
 const App = () => {
@@ -44,19 +44,12 @@ const App = () => {
               <Route index element={<ProfileInfo />} />
               <Route path="booking-history" element={<BookingHistory />} />
               <Route path="change-password" element={<ChangePassword />} />
-              <Route path="reviews" element={<ReviewManager />} />
+              
               <Route path="update" element={<UpdateProfileForm />} />
-              <Route
-                path="*"
-                element={
-                  <div className="p-8 text-center text-red-600">
-                    404: Page Not Found
-                  </div>
-                }
-              />
+              
             </Route>
 
-            <Route
+             <Route
               path="*"
               element={
                 <div className="p-8 text-center text-red-600">

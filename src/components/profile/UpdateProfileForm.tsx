@@ -8,8 +8,8 @@ const UpdateProfileForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load current profile data to prefill form
-    api.get("/user/me")
+ 
+    api.get("/user/profile")
       .then(res => {
         setFormData({ username: res.data.username, email: res.data.email });
       })
@@ -26,7 +26,7 @@ const UpdateProfileForm = () => {
     setMessage(null);
     setError(null);
     try {
-      await api.put("/user/update", formData);
+      await api.put("/users/update", formData);
       setMessage("Profile updated successfully.");
     } catch {
       setError("Failed to update profile.");
