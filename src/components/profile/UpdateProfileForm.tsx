@@ -1,35 +1,53 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
+import toast from "react-hot-toast";
 
 const UpdateProfileForm = () => {
-  const [formData, setFormData] = useState({ username: "", email: "" });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    currentPassword: "",
+    newPassword: ""
+  });
+
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
- 
-    api.get("/user/profile")
-      .then(res => {
-        setFormData({ username: res.data.username, email: res.data.email });
+    api
+      .get("/users/profile")
+      .then((res) => {
+        setFormData((prev) => ({
+          ...prev,
+          username: res.data.username,
+          email: res.data.email
+        }));
       })
-    
+      .catch(() => {
+        toast.error("Failed to load user data.");
+      })
       .finally(() => setLoading(false));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
+
     try {
-      await api.put("/users/update", formData);
-      setMessage("Profile updated successfully.");
-    } catch {
-      setError("Failed to update profile.");
+      await api.put("/users/update", {
+        username: formData.username,
+        email: formData.email,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword
+      });
+
+      toast.success("Profile updated successfully!");
+      setFormData((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
+    } catch (err) {
+      toast.error("Failed to update profile.");
     }
   };
 
@@ -38,8 +56,6 @@ const UpdateProfileForm = () => {
   return (
     <div className="bg-white shadow p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Update Profile</h2>
-      {message && <p className="text-green-600 mb-4">{message}</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <div>
@@ -63,6 +79,30 @@ const UpdateProfileForm = () => {
             onChange={handleChange}
             className="w-full border rounded px-3 py-2"
             required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Current Password</label>
+          <input
+            type="password"
+            name="currentPassword"
+            value={formData.currentPassword}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="Enter current password"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">New Password</label>
+          <input
+            type="password"
+            name="newPassword"
+            value={formData.newPassword}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="Enter new password"
           />
         </div>
 

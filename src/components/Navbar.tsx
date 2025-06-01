@@ -92,8 +92,8 @@ const Navbar = () => {
             className="flex items-center text-2xl font-bold text-white"
           >
             <img
-              src="/logo.png"
-              alt="Logo"
+              src="/s-logo.png"
+              alt="logo"
               className="h-10 w-10 mr-2 rounded-full"
               loading="lazy"
             />

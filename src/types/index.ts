@@ -14,7 +14,8 @@ export interface Show {
 export interface Booking {
   showId: string;
   userId?: string;
-  seats: string[];
+    seatNumbers: (string | number)[];
+  
   showTime: string;
   customerName?: string;
   customerEmail?: string;

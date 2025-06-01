@@ -49,6 +49,15 @@ const ShowDetails = () => {
     });
   };
 
+  
+  const convertSeatToNumber = (seat: string): string => {
+    const rowMap = "ABCDEFGHI";
+    const row = seat[0];
+    const column = parseInt(seat.slice(1));  
+    const rowIndex = rowMap.indexOf(row);
+    return (rowIndex * seatsPerRow + column).toString();
+  };
+
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) return navigate("/login");
@@ -59,12 +68,14 @@ const ShowDetails = () => {
 
     setIsBooking(true);
     setBookingError(null);
+ 
+    const seatNumbers = booking.seats.map(convertSeatToNumber);
 
     try {
       await bookTicket({
         showId: id,
         showTime: booking.showTime,
-        seats: booking.seats,
+        seatNumbers,  
       });
       navigate("/profile");
     } catch (error: any) {

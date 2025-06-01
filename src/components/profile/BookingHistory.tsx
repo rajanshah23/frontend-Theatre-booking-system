@@ -13,25 +13,30 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
- 
-useEffect(() => {
-  const fetchBookings = async () => {
-    try {
-     const response = await api.get('/users/booking-history');
-      if (response.data && response.data.length > 0) {
-        setBookings(response.data);
-      } else {
-        setError("No bookings found");
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await api.get("/users/booking-history");
+        console.log("Bookings response data:", response.data);
+        if (response.data && response.data.length > 0) {
+          setBookings(response.data);  
+          setError(null);
+        } else {
+          setBookings([]);
+          setError(null);  
+        }
+      } catch (err: any) {
+        setError(
+          err.response?.data?.error || err.message || "Failed to fetch bookings"
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Bookings fetch error:", err);
-      setError(err.response?.data?.message || "Failed to load booking history");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchBookings();
-}, []);
+    };
+
+    fetchBookings();
+  }, []);
 
   if (loading) return <p>Loading bookings...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
@@ -42,10 +47,18 @@ useEffect(() => {
       <h2 className="text-xl font-semibold mb-4">Past Bookings</h2>
       {bookings.map((b) => (
         <div key={b.id} className="mb-4 border-b pb-2">
-          <p><strong>Show:</strong> {b.showTitle}</p>
-          <p><strong>Date:</strong> {new Date(b.date).toLocaleDateString()}</p>
-          <p><strong>Seats:</strong> {b.seats.join(", ")}</p>
-          <p><strong>Status:</strong> {b.status}</p>
+          <p>
+            <strong>Show:</strong> {b.showTitle}
+          </p>
+          <p>
+            <strong>Date:</strong> {new Date(b.date).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Seats:</strong> {b.seats.join(", ")}
+          </p>
+          <p>
+            <strong>Status:</strong> {b.status}
+          </p>
         </div>
       ))}
     </div>

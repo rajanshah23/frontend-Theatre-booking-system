@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        
+          
         yellow: {
           500: "#f59e0b",
           600: "#d97706",

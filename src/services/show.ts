@@ -1,8 +1,10 @@
-// services/show.ts
+// src/services/show.ts
 import api from './api';
 import { Show, Booking } from '../types';
 
- 
+/**
+ * Fetch all shows
+ */
 export const getShows = async (): Promise<Show[]> => {
   try {
     const response = await api.get('/shows');
@@ -12,7 +14,9 @@ export const getShows = async (): Promise<Show[]> => {
   }
 };
 
- 
+/**
+ * Fetch single show by ID
+ */
 export const getShow = async (id: string): Promise<Show> => {
   try {
     const response = await api.get(`/shows/${id}`);
@@ -22,18 +26,23 @@ export const getShow = async (id: string): Promise<Show> => {
   }
 };
 
- 
-export const bookTicket = async (booking: Booking): Promise<void> => {
+/**
+ * Book tickets for a specific show
+ */
+ export const bookTicket = async (booking: Booking): Promise<void> => {
   try {
-    for (const seatNumber of booking.seats) {
-      await api.post(`/shows/${booking.showId}/seats/book`, {
-        seatNumber: seatNumber.trim(),
-        showTime: booking.showTime,
-      });
-    }
+    // ✅ Convert seat numbers to strings (like Postman does)
+    const seatNumbers = booking.seatNumbers.map(String);
+    console.log("Booking seats:", seatNumbers); // For debugging
+
+    await api.post(`/shows/${booking.showId}/seats/book`, {
+      seatNumbers,
+    });
   } catch (error: any) {
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
+    } else if (error.response?.data?.error) {
+      throw new Error(error.response.data.error); // ✅ show API-level errors
     } else if (error.message) {
       throw new Error(error.message);
     } else {
@@ -43,8 +52,13 @@ export const bookTicket = async (booking: Booking): Promise<void> => {
 };
 
 
- 
-export const getSeatsAvailability = async (showId: string): Promise<{ seatNumber: string; status: string }[]> => {
+
+/**
+ * Get available seats for a specific show
+ */
+export const getSeatsAvailability = async (
+  showId: string
+): Promise<{ seatNumber: string; status: string }[]> => {
   try {
     const response = await api.get(`/shows/${showId}/seats-availability`);
     return response.data.data;

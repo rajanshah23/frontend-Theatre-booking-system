@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
+import { toast } from "react-hot-toast";
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -7,8 +8,6 @@ const ChangePassword = () => {
     newPassword: "",
     confirmPassword: "",
   });
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,24 +16,23 @@ const ChangePassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage(null);
-    setError(null);
 
     if (formData.newPassword !== formData.confirmPassword) {
-      setError("New passwords do not match");
+      toast.error("New passwords do not match");
       return;
     }
 
     setLoading(true);
     try {
-      await api.put("/change-password", {
+      await api.put("/users/change-password", {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
-      setMessage("Password changed successfully.");
+      toast.success("Password changed successfully.");
       setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (err) {
-      setError("Failed to change password.");
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "Failed to change password.";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -43,9 +41,6 @@ const ChangePassword = () => {
   return (
     <div className="bg-white shadow p-6 rounded-lg max-w-md">
       <h2 className="text-xl font-semibold mb-4">Change Password</h2>
-
-      {message && <p className="text-green-600 mb-4">{message}</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
