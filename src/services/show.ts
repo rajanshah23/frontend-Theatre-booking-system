@@ -2,9 +2,7 @@
 import api from './api';
 import { Show, Booking } from '../types';
 
-/**
- * Fetch all shows
- */
+ 
 export const getShows = async (): Promise<Show[]> => {
   try {
     const response = await api.get('/shows');
@@ -13,10 +11,7 @@ export const getShows = async (): Promise<Show[]> => {
     throw new Error('Failed to fetch shows');
   }
 };
-
-/**
- * Fetch single show by ID
- */
+ 
 export const getShow = async (id: string): Promise<Show> => {
   try {
     const response = await api.get(`/shows/${id}`);
@@ -26,14 +21,12 @@ export const getShow = async (id: string): Promise<Show> => {
   }
 };
 
-/**
- * Book tickets for a specific show
- */
+ 
  export const bookTicket = async (booking: Booking): Promise<void> => {
   try {
-    // ✅ Convert seat numbers to strings (like Postman does)
+    / 
     const seatNumbers = booking.seatNumbers.map(String);
-    console.log("Booking seats:", seatNumbers); // For debugging
+    console.log("Booking seats:", seatNumbers);  
 
     await api.post(`/shows/${booking.showId}/seats/book`, {
       seatNumbers,
@@ -42,7 +35,7 @@ export const getShow = async (id: string): Promise<Show> => {
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     } else if (error.response?.data?.error) {
-      throw new Error(error.response.data.error); // ✅ show API-level errors
+      throw new Error(error.response.data.error); 
     } else if (error.message) {
       throw new Error(error.message);
     } else {
@@ -52,10 +45,7 @@ export const getShow = async (id: string): Promise<Show> => {
 };
 
 
-
-/**
- * Get available seats for a specific show
- */
+ 
 export const getSeatsAvailability = async (
   showId: string
 ): Promise<{ seatNumber: string; status: string }[]> => {
