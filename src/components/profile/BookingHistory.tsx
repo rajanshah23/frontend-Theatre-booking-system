@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 
-interface Booking {
-  id: string;
-  showTitle: string;
-  date: string;
-  seats: string[];
+interface BookingFromAPI {
+  id: number | string;
   status: string;
+  show: {
+    title: string;
+    date: string; // ISO string
+  };
+  seats: {
+    seatNumber: string;
+  }[];
 }
 
 const BookingHistory = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<BookingFromAPI[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await api.get("/users/booking-history");
+    const response = await api.get("/users/me/bookings");
         console.log("Bookings response data:", response.data);
         if (response.data && response.data.length > 0) {
           setBookings(response.data);  
@@ -48,13 +52,13 @@ const BookingHistory = () => {
       {bookings.map((b) => (
         <div key={b.id} className="mb-4 border-b pb-2">
           <p>
-            <strong>Show:</strong> {b.showTitle}
+            <strong>Show:</strong> {b.show.title}
           </p>
           <p>
-            <strong>Date:</strong> {new Date(b.date).toLocaleDateString()}
+            <strong>Date:</strong> {new Date(b.show.date).toLocaleDateString()}
           </p>
           <p>
-            <strong>Seats:</strong> {b.seats.join(", ")}
+            <strong>Seats:</strong> {b.seats.map((s) => s.seatNumber).join(", ")}
           </p>
           <p>
             <strong>Status:</strong> {b.status}

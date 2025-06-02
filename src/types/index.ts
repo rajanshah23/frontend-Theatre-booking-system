@@ -1,4 +1,3 @@
-// types/show.ts
 export interface Show {
   id: number;
   title: string;
@@ -8,15 +7,23 @@ export interface Show {
   price: number;
   totalSeats: number;
   image: string;
-  showTimes: string[];  
+  showTimes: string[];
 }
 
 export interface Booking {
   showId: string;
   userId?: string;
-    seatNumbers: (string | number)[];
-  
+  seatNumbers: string[];
+  seatIds?: number[];
+  totalAmount: number;
+  paymentMethod: "KHALTI" | "CASH" | "CARD" | "ONLINE";
   showTime: string;
   customerName?: string;
   customerEmail?: string;
+}
+
+export interface SeatAvailability {
+  id: number;
+  seatNumber: string;
+  status: "available" | "booked" | "reserved";
 }

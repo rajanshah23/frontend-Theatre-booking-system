@@ -1,20 +1,29 @@
-// src/utils/seats.ts
+ 
 
 export type SeatAvailability = {
   seatNumber: string;
-  status: string; // e.g. 'available', 'booked', etc.
+  status: string;  
 };
 
  
+export const seatLabel = (index: number, cols = 10): string => {
+  const rows = "ABCDEFGHIJKLMN";    
+  const row = rows[Math.floor(index / cols)];
+  const col = (index % cols) + 1;
+  return `${row}${col}`;
+};
+ 
 export const areSeatsAvailable = (
   selectedSeats: string[],
-  availableSeats: SeatAvailability[]
+  availableSeats?: SeatAvailability[]  
 ): boolean => {
- 
-  const availableSeatNumbers = availableSeats
-    .filter(seat => seat.status === 'available')
+  const seats = availableSeats ?? [];   
+
+  const availableSeatNumbers = seats
+    .filter(seat => seat.status.toLowerCase() === "available")
     .map(seat => seat.seatNumber.toUpperCase());
 
-  // Check every selected seat against available seats list
-  return selectedSeats.every(seat => availableSeatNumbers.includes(seat.toUpperCase()));
+  return selectedSeats.every(seat =>
+    availableSeatNumbers.includes(seat.toUpperCase())
+  );
 };
