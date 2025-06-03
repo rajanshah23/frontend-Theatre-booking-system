@@ -8,9 +8,10 @@ import ProfileLayout from "./components/profile/ProfileLayout";
 import VerifyOtp from "./components/VerifyOtp";
 import Login from "./components/Login";
 import Signup from "./components/signup";
-import Bookings from "./components/Booking";
+// import {Bookings} from "./components/Booking";
+import PaymentPage from "./components/PaymentPage";
 import Settings from "./components/settings/setting";
-import ThemeToggle from "./components/settings/ThemeToggle";
+import PaymentSuccess from "./components/PaymentSuccess";
 import BookingHistory from "./components/profile/BookingHistory";
 import ChangePassword from "./components/profile/ChangePassword";
 import ProfileInfo from "./components/profile/ProfileInfo";
@@ -21,52 +22,52 @@ import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
-   
-      <Router>
-        <Toaster position="top-right" reverseOrder={false} />
- 
-        <Navbar />
+    <Router>
+      <Toaster position="top-right" reverseOrder={false} />
 
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shows" element={<Home />} />
-            <Route path="/shows/:id" element={<ShowDetails />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/bookings" element={<Bookings />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/verify-otp" element={<VerifyOtp />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+      <Navbar />
 
-            {/* Profile Routes */}
-            <Route path="/profile" element={<ProfileLayout />}>
-              <Route index element={<ProfileInfo />} />
-              <Route path="booking-history" element={<BookingHistory />} />
-              <Route path="change-password" element={<ChangePassword />} />
-              <Route path="update" element={<UpdateProfileForm />} />
-            </Route>
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/shows" element={<Home />} />
+          <Route path="/shows/:id" element={<ShowDetails />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          {/* <Route path="/bookings" element={<Bookings />} /> */}
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+<Route path="/payment" element={<PaymentPage />} />
 
-            {/* Settings */}
-            <Route path="/settings" element={<Settings />} />
-            <Route
-              path="/settings/account-deletion"
-              element={<AccountDeletion />}
-            />
+          {/* Profile Routes */}
+          <Route path="/profile" element={<ProfileLayout />}>
+            <Route index element={<ProfileInfo />} />
+            <Route path="booking-history" element={<BookingHistory />} />
+            <Route path="change-password" element={<ChangePassword />} />
+            <Route path="update" element={<UpdateProfileForm />} />
+          </Route>
 
-            {/* 404 Fallback */}
-            <Route
-              path="*"
-              element={
-                <div className="p-8 text-center text-red-600">
-                  404: Page Not Found
-                </div>
-              }
-            />
-          </Routes>
-        </main>
-      </Router>
-    
+          {/* Settings */}
+          <Route path="/settings" element={<Settings />} />
+          <Route
+            path="/settings/account-deletion"
+            element={<AccountDeletion />}
+          />
+
+          {/* 404 Fallback */}
+          <Route
+            path="*"
+            element={
+              <div className="p-8 text-center text-red-600">
+                404: Page Not Found
+              </div>
+            }
+          />
+        </Routes>
+      </main>
+    </Router>
   );
 };
 

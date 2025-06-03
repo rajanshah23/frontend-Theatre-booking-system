@@ -9,7 +9,7 @@ import {
 import { getShow, bookTicket, getSeatsAvailability } from "../services/show";
 import { Show, SeatAvailability } from "../types";
 import { areSeatsAvailable } from "../utils/seats";
-
+ 
 type PaymentMethod = "KHALTI" | "CASH" | "CARD" | "ONLINE";
 const paymentOptions: PaymentMethod[] = ["KHALTI", "CASH", "CARD", "ONLINE"];
 
@@ -85,27 +85,57 @@ const ShowDetails: React.FC = () => {
     setBookingError(null);
 
     try {
+      localStorage.setItem(
+        "pendingBooking",
+        JSON.stringify({
+          booking: {
+            showId: id,
+            seatNumbers: booking.seats,
+            showTime: booking.showTime,
+            paymentMethod: booking.paymentMethod,
+          },
+          seatIdMap,
+          price: show?.price || 0,
+        })
+      );
+   if (booking.paymentMethod === "KHALTI") {
       const response = await bookTicket({
-        showId: id,
+        showId: id.toString(),
         seatNumbers: booking.seats,
-        seatIds,
-        totalAmount,
-        paymentMethod: booking.paymentMethod,
+        seatIds: booking.seats.map(seat => seatIdMap[seat]).filter((id): id is number => id !== undefined),
         showTime: booking.showTime,
+        paymentMethod: booking.paymentMethod,
+        totalAmount: totalAmount,
+      });  if (response.paymentUrl) {
+        window.location.href = response.paymentUrl;
+        return;
+      } else {
+        throw new Error("Khalti payment URL not received");
+      }
+    }
+
+      const response = await bookTicket({
+        showId: id.toString(),
+        seatNumbers: booking.seats,
+        seatIds: booking.seats.map(seat => seatIdMap[seat]).filter((id): id is number => id !== undefined),
+        showTime: booking.showTime,
+        paymentMethod: booking.paymentMethod,
+        totalAmount: totalAmount,
       });
 
-      if (response.paymentUrl) {
-        window.location.href = response.paymentUrl;
-      } else {
-        navigate("/profile");
-      }
+      navigate("/payment", {
+        state: {
+          showId: id,
+          paymentMethod: booking.paymentMethod,
+          totalAmount: totalAmount,
+        },
+      });
     } catch (error: any) {
       setBookingError(error.message || "Booking failed. Please try again.");
     } finally {
       setIsBooking(false);
     }
-  };
-
+  };  
   useEffect(() => {
     const fetchShow = async () => {
       try {
@@ -273,98 +303,74 @@ const ShowDetails: React.FC = () => {
 
               <div className="bg-white p-5 rounded-lg border border-gray-200">
                 <div className="text-center mb-8">
-                  <div className="h-7 bg-gray-800 mx-auto w-full rounded-md flex items-center justify-center">
-                    <span className="text-white font-medium">SCREEN</span>
-                  </div>
-                  <p className="text-xl text-gray-00 mt-1">
-                    All seats face the screen
-                  </p>
+                  <div className="h-3 w-full max-w-4xl mx-auto bg-gray-200 rounded"></div>
+                  <div className="text-gray-600 mt-1">Screen This Way</div>
                 </div>
-
-                {seatsLoading ? (
-                  <div className="text-center py-10 text-gray-600">
+                {seatsLoading && (
+                  <p className="text-center text-yellow-500">
                     Loading seats...
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center space-y-2">
-                    {seatRows.map((row) => (
-                      <div key={row} className="flex items-center space-x-2">
-                        <span className="text-sm font-medium w-4">{row}</span>
-                        <div className="flex space-x-1">
-                          {[...Array(seatsPerRow)].map((_, col) => {
-                            const seatLabel = `${row}${col + 1}`;
-                            const status = seatStatus[seatLabel] || "available";
-                            const isSelected =
-                              booking.seats.includes(seatLabel);
-
-                            let seatBgClass = "bg-gray-200"; // default available
-                            if (status === "booked") seatBgClass = "bg-red-600";
-                            else if (status === "reserved")
-                              seatBgClass = "bg-orange-400";
-                            else if (isSelected) seatBgClass = "bg-yellow-400";
-
-                            const isDisabled =
-                              status === "booked" || status === "reserved";
-
-                            return (
-                              <button
-                                key={seatLabel}
-                                type="button"
-                                disabled={isDisabled}
-                                onClick={() => toggleSeat(seatLabel)}
-                                title={`${seatLabel} (${status})`}
-                                className={`w-8 h-8 text-xs font-semibold rounded cursor-pointer transition-colors
-                                        ${
-                                          isDisabled
-                                            ? "cursor-not-allowed opacity-50"
-                                            : "hover:bg-yellow-300"
-                                        } ${seatBgClass}`}
-                              >
-                                {col + 1}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  </p>
                 )}
+                <div className="max-w-4xl mx-auto grid grid-cols-10 gap-1">
+                  {seatRows.map((row) =>
+                    Array.from({ length: seatsPerRow }, (_, i) => {
+                      const seatNum = `${row}${i + 1}`;
+                      const status = seatStatus[seatNum] || "available";
+                      const isSelected = booking.seats.includes(seatNum);
 
-                <div className="flex justify-center mt-6 mb-4 space-x-4 text-sl">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-gray-200 border border-gray-300 rounded"></div>
-                    <span>Available</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-yellow-400 rounded"></div>
-                    <span>Selected</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-red-600 rounded"></div>
-                    <span>Booked</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-orange-400 rounded"></div>
-                    <span>Reserved</span>
-                  </div>
+                      let seatClass = "bg-gray-200";
+                      if (status === "booked") seatClass = "bg-red-500";
+                      else if (status === "reserved") seatClass = "bg-orange-400";
+                      if (isSelected) seatClass = "bg-yellow-300";
+
+                      return (
+                        <button
+                          key={seatNum}
+                          type="button"
+                          className={`p-3 rounded font-semibold text-sm ${seatClass} hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50`}
+                          disabled={status === "booked" || status === "reserved"}
+                          onClick={() => toggleSeat(seatNum)}
+                        >
+                          {seatNum}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="mt-2 grid grid-cols-4 text-center gap-2 max-w-2xl mx-auto">
+                  <span className="flex items-center justify-center gap-1">
+                    <div className="h-5 w-5 rounded bg-gray-200"></div> Available
+                  </span>
+                  <span className="flex items-center justify-center gap-1">
+                    <div className="h-5 w-5 rounded bg-red-500"></div> Booked
+                  </span>
+                  <span className="flex items-center justify-center gap-1">
+                    <div className="h-5 w-5 rounded bg-orange-400"></div> Reserved
+                  </span>
+                  <span className="flex items-center justify-center gap-1">
+                    <div className="h-5 w-5 rounded bg-yellow-300"></div> Selected
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="mb-6">
-              <label className="block text-xl font-medium text-black-700 mb-1">
+              <label
+                htmlFor="paymentMethod"
+                className="block text-xl font-medium text-black-700 mb-1"
+              >
                 Payment Method
               </label>
               <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-yellow-500"
+                id="paymentMethod"
                 value={booking.paymentMethod}
                 onChange={(e) =>
-                  setBooking((prev) => ({
-                    ...prev,
+                  setBooking({
+                    ...booking,
                     paymentMethod: e.target.value as PaymentMethod,
-                  }))
+                  })
                 }
-                required
+                className="w-full p-3 rounded border border-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
               >
                 {paymentOptions.map((method) => (
                   <option key={method} value={method}>
@@ -374,23 +380,16 @@ const ShowDetails: React.FC = () => {
               </select>
             </div>
 
-            <div className="mb-6 font-semibold text-gray-900">
-              <p>
-                <strong>Seats Selected:</strong>{" "}
-                {booking.seats.join(", ") || "None"}
-              </p>
-              <p>
-                <strong>Total Amount:</strong> NPR{" "}
-                {booking.seats.length * (show.price ?? 0)}
-              </p>
+            <div className="text-lg mb-6 font-semibold text-black-900">
+              Total Price: NPR {booking.seats.length * (show.price || 0)}
             </div>
 
             <button
               type="submit"
+              className="w-full bg-yellow-500 text-white font-bold py-3 rounded hover:bg-yellow-600 transition"
               disabled={isBooking}
-              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md font-medium transition disabled:opacity-50"
             >
-              {isBooking ? "Booking..." : "Book Now"}
+              {isBooking ? "Booking..." : "Confirm Booking"}
             </button>
           </form>
         </div>

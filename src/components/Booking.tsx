@@ -1,14 +1,36 @@
-import BookingHistory from "./profile/BookingHistory";
+import React from "react";
+import { initiatePayment } from "../services/PaymentService";
 
-const Bookings = () => {
+const Booking = ({
+  bookingId,
+  totalAmount,
+}: {
+  bookingId: number;
+  totalAmount: number;
+}) => {
+  const handlePayment = async () => {
+    try {
+      const { url, pidx } = await initiatePayment(bookingId, totalAmount);
+
+      localStorage.setItem("khalti_pidx", pidx);
+      window.location.href = url;
+    } catch (err) {
+      console.error("Error initiating payment", err);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Bookings</h1>
-        <BookingHistory />
-      </div>
+    <div>
+      <h2>Book Your Show</h2>
+      <p>Total: Rs. {totalAmount}</p>
+      <button
+        onClick={handlePayment}
+        className="bg-purple-600 text-white px-4 py-2 rounded"
+      >
+        Pay with Khalti
+      </button>
     </div>
   );
 };
 
-export default Bookings;
+export default Booking;
