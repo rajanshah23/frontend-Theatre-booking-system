@@ -28,3 +28,14 @@ export interface SeatAvailability {
   seatNumber: string;
   status: "available" | "booked" | "reserved";
 }
+
+
+ export interface Show {
+  id: number;
+  title: string;
+  description: string;
+  date: string;         // in YYYY-MM-DD format
+  time: string;         // in HH:mm format
+  totalSeats: number;
+  image: string;        // image URL
+}

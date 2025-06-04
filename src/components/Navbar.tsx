@@ -5,11 +5,10 @@ import { BellIcon } from "@heroicons/react/24/outline";
 
 const Navbar = () => {
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
- 
   const [notifications, setNotifications] = useState<
     { id: string; message: string; isRead: boolean; createdAt: string }[]
   >([]);
@@ -18,7 +17,6 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const notifDropdownRef = useRef<HTMLDivElement | null>(null);
 
- 
   useEffect(() => {
     const fetchedNotifications = [
       {
@@ -37,10 +35,8 @@ const Navbar = () => {
     setNotifications(fetchedNotifications);
   }, []);
 
- 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
- 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -60,7 +56,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-   
   const markAsRead = (id: string) => {
     setNotifications((prev) =>
       prev.map((n) =>
@@ -72,13 +67,16 @@ const Navbar = () => {
           : n
       )
     );
- 
   };
 
+  // Add admin dashboard link only if authenticated and user role is admin
   const navLinks = [
     { path: "/", label: "Home" },
     ...(isAuthenticated ? [{ path: "/shows", label: "Browse Shows" }] : []),
     { path: "/bookings", label: "My Bookings" },
+    ...(isAuthenticated && user?.role === "admin"
+      ? [{ path: "/admin", label: "Admin Dashboard" }]
+      : []),
     ...(!isAuthenticated ? [{ path: "/login", label: "Login" }] : []),
   ];
 
@@ -86,7 +84,6 @@ const Navbar = () => {
     <nav className="bg-gray-900 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-     
           <Link
             to="/"
             className="flex items-center text-2xl font-bold text-white"
@@ -100,7 +97,6 @@ const Navbar = () => {
             <span>Theatre Booking System</span>
           </Link>
 
- 
           <div className="hidden md:flex items-center space-x-4">
             {navLinks.map(({ path, label }) => {
               const isActive = location.pathname === path;
@@ -120,7 +116,6 @@ const Navbar = () => {
               );
             })}
 
-           
             <div className="relative" ref={notifDropdownRef}>
               <button
                 aria-label="Notifications"
@@ -158,7 +153,7 @@ const Navbar = () => {
                 </div>
               )}
             </div>
- 
+
             {!isAuthenticated ? (
               <Link
                 to="/signup"
@@ -224,7 +219,6 @@ const Navbar = () => {
             )}
           </div>
 
-  
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -255,7 +249,6 @@ const Navbar = () => {
         </div>
       </div>
 
-    
       {isMenuOpen && (
         <div className="md:hidden bg-gray-800 px-4 pt-2 pb-4 space-y-1">
           {navLinks.map(({ path, label }) => {
@@ -279,22 +272,37 @@ const Navbar = () => {
           {!isAuthenticated ? (
             <Link
               to="/signup"
-              className="block mt-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              className="block px-3 py-2 rounded-md text-base font-medium bg-yellow-500 text-gray-900 hover:bg-yellow-600"
               onClick={() => setIsMenuOpen(false)}
             >
               Sign Up
             </Link>
           ) : (
-            <button
-              onClick={() => {
-                setIsMenuOpen(false);
-                logout();
-              }}
-              className="block mt-2 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-              aria-label="Logout"
-            >
-              Logout
-            </button>
+            <>
+              <Link
+                to="/profile"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-yellow-500 hover:text-gray-900"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                to="/settings"
+                className="block px-3 py-2 rounded-md text-base font-medium hover:bg-yellow-500 hover:text-gray-900"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Settings
+              </Link>
+              <button
+                onClick={() => {
+                  logout();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700"
+              >
+                Logout
+              </button>
+            </>
           )}
         </div>
       )}

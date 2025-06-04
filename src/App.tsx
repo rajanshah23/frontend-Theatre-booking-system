@@ -19,6 +19,8 @@ import UpdateProfileForm from "./components/profile/UpdateProfileForm";
 import AccountDeletion from "./components/settings/AccountDeletion";
 import { Toaster } from "react-hot-toast";
 import Booking from "./components/Booking";
+import AdminDashboard from "./components/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 const App = () => {
   return (
     <Router>
@@ -47,6 +49,16 @@ const App = () => {
             <Route path="change-password" element={<ChangePassword />} />
             <Route path="update" element={<UpdateProfileForm />} />
           </Route>
+
+          {/* Admin Route */}
+     <Route
+  path="/admin"
+  element={
+    <ProtectedRoute role="admin">
+      <AdminDashboard />
+    </ProtectedRoute>
+  }
+/>
 
           {/* Settings */}
           <Route path="/settings" element={<Settings />} />
