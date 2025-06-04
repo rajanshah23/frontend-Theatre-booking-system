@@ -6,7 +6,7 @@ interface BookingFromAPI {
   status: string;
   show: {
     title: string;
-    date: string; // ISO string
+    date: string;  
   };
   seats: {
     seatNumber: string;

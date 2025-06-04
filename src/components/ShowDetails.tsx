@@ -9,14 +9,13 @@ import {
 import { getShow, bookTicket, getSeatsAvailability } from "../services/show";
 import { Show, SeatAvailability } from "../types";
 import { areSeatsAvailable } from "../utils/seats";
- 
+
 type PaymentMethod = "KHALTI" | "CASH" | "CARD" | "ONLINE";
 const paymentOptions: PaymentMethod[] = ["KHALTI", "CASH", "CARD", "ONLINE"];
 
 const ShowDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [show, setShow] = useState<Show | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,30 +97,25 @@ const ShowDetails: React.FC = () => {
           price: show?.price || 0,
         })
       );
-   if (booking.paymentMethod === "KHALTI") {
-      const response = await bookTicket({
-        showId: id.toString(),
-        seatNumbers: booking.seats,
-        seatIds: booking.seats.map(seat => seatIdMap[seat]).filter((id): id is number => id !== undefined),
-        showTime: booking.showTime,
-        paymentMethod: booking.paymentMethod,
-        totalAmount: totalAmount,
-      });  if (response.paymentUrl) {
-        window.location.href = response.paymentUrl;
-        return;
-      } else {
-        throw new Error("Khalti payment URL not received");
-      }
-    }
+      if (booking.paymentMethod === "KHALTI") {
+        const response = await bookTicket({
+          showId: id.toString(),
+          seatNumbers: booking.seats,
 
-      const response = await bookTicket({
-        showId: id.toString(),
-        seatNumbers: booking.seats,
-        seatIds: booking.seats.map(seat => seatIdMap[seat]).filter((id): id is number => id !== undefined),
-        showTime: booking.showTime,
-        paymentMethod: booking.paymentMethod,
-        totalAmount: totalAmount,
-      });
+          seatIds: booking.seats
+            .map((seat) => seatIdMap[seat])
+            .filter((id): id is number => id !== undefined),
+          showTime: booking.showTime,
+          paymentMethod: booking.paymentMethod,
+          totalAmount: totalAmount,
+        });
+        if (response.paymentUrl) {
+          window.location.href = response.paymentUrl;
+          return;
+        } else {
+          throw new Error("Khalti payment URL not received");
+        }
+      }
 
       navigate("/payment", {
         state: {
@@ -135,7 +129,7 @@ const ShowDetails: React.FC = () => {
     } finally {
       setIsBooking(false);
     }
-  };  
+  };
   useEffect(() => {
     const fetchShow = async () => {
       try {
@@ -320,7 +314,8 @@ const ShowDetails: React.FC = () => {
 
                       let seatClass = "bg-gray-200";
                       if (status === "booked") seatClass = "bg-red-500";
-                      else if (status === "reserved") seatClass = "bg-orange-400";
+                      else if (status === "reserved")
+                        seatClass = "bg-orange-400";
                       if (isSelected) seatClass = "bg-yellow-300";
 
                       return (
@@ -328,7 +323,9 @@ const ShowDetails: React.FC = () => {
                           key={seatNum}
                           type="button"
                           className={`p-3 rounded font-semibold text-sm ${seatClass} hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 disabled:opacity-50`}
-                          disabled={status === "booked" || status === "reserved"}
+                          disabled={
+                            status === "booked" || status === "reserved"
+                          }
                           onClick={() => toggleSeat(seatNum)}
                         >
                           {seatNum}
@@ -339,16 +336,19 @@ const ShowDetails: React.FC = () => {
                 </div>
                 <div className="mt-2 grid grid-cols-4 text-center gap-2 max-w-2xl mx-auto">
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-gray-200"></div> Available
+                    <div className="h-5 w-5 rounded bg-gray-200"></div>{" "}
+                    Available
                   </span>
                   <span className="flex items-center justify-center gap-1">
                     <div className="h-5 w-5 rounded bg-red-500"></div> Booked
                   </span>
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-orange-400"></div> Reserved
+                    <div className="h-5 w-5 rounded bg-orange-400"></div>{" "}
+                    Reserved
                   </span>
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-yellow-300"></div> Selected
+                    <div className="h-5 w-5 rounded bg-yellow-300"></div>{" "}
+                    Selected
                   </span>
                 </div>
               </div>

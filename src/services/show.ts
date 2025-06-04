@@ -29,8 +29,7 @@ export const bookTicket = async (
       showTime: booking.showTime,
       seatNumbers: booking.seatNumbers,
     });
-
-    // For Khalti payments, extract paymentUrl from response
+ 
     if (booking.paymentMethod.toUpperCase() === "KHALTI") {
       return {
         booking: response.data.booking,

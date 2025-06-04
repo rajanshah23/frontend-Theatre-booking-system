@@ -112,15 +112,28 @@ const PaymentSuccess = () => {
             </p>
             <div className="mt-6 bg-green-50 p-4 rounded-md">
               <h3 className="font-semibold">Booking Details</h3>
-                <div className="space-y-3">
-                    <p><span className="font-medium">Booking ID:</span> #{booking?.id}</p>
-                    <p><span className="font-medium">Status:</span> Confirmed</p>
-                    <p><span className="font-medium">Show:</span> {booking?.show?.title}</p>
-                    <p><span className="font-medium">Date:</span> {booking?.show?.date}</p>
-                    <p><span className="font-medium">Time:</span> {booking?.showTime}</p>
-                  </div>
+              <div className="space-y-3">
+                <p>
+                  <span className="font-medium">Booking ID:</span> #
+                  {booking?.id}
+                </p>
+                <p>
+                  <span className="font-medium">Status:</span> Confirmed
+                </p>
+                <p>
+                  <span className="font-medium">Show:</span>{" "}
+                  {booking?.show?.title}
+                </p>
+                <p>
+                  <span className="font-medium">Date:</span>
+                  {new Date(booking?.show?.date).toLocaleDateString()}
+                </p>
+                <p>
+                  <span className="font-medium">Time:</span> {booking?.showTime}
+                </p>
+              </div>
             </div>
-            
+
             <button
               onClick={() => navigate("/bookings")}
               className="mt-6 bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"

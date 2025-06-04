@@ -17,9 +17,8 @@ import ChangePassword from "./components/profile/ChangePassword";
 import ProfileInfo from "./components/profile/ProfileInfo";
 import UpdateProfileForm from "./components/profile/UpdateProfileForm";
 import AccountDeletion from "./components/settings/AccountDeletion";
-
 import { Toaster } from "react-hot-toast";
-
+import Booking from "./components/Booking";
 const App = () => {
   return (
     <Router>
@@ -34,12 +33,12 @@ const App = () => {
           <Route path="/shows/:id" element={<ShowDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          {/* <Route path="/bookings" element={<Bookings />} /> */}
+          <Route path="/bookings" element={<Booking />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-<Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment" element={<PaymentPage />} />
 
           {/* Profile Routes */}
           <Route path="/profile" element={<ProfileLayout />}>

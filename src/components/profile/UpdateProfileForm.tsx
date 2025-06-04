@@ -7,7 +7,7 @@ const UpdateProfileForm = () => {
     username: "",
     email: "",
     currentPassword: "",
-    newPassword: ""
+    newPassword: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ const UpdateProfileForm = () => {
         setFormData((prev) => ({
           ...prev,
           username: res.data.username,
-          email: res.data.email
+          email: res.data.email,
         }));
       })
       .catch(() => {
@@ -41,11 +41,15 @@ const UpdateProfileForm = () => {
         username: formData.username,
         email: formData.email,
         currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword
+        newPassword: formData.newPassword,
       });
 
       toast.success("Profile updated successfully!");
-      setFormData((prev) => ({ ...prev, currentPassword: "", newPassword: "" }));
+      setFormData((prev) => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+      }));
     } catch (err) {
       toast.error("Failed to update profile.");
     }
