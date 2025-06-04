@@ -15,6 +15,7 @@ export interface Booking {
   userId?: string;
   seatNumbers: string[];
   seatIds?: number[];
+  price:number;
   totalAmount: number;
   paymentMethod: "KHALTI" | "CASH" | "CARD" | "ONLINE";
   showTime: string;
