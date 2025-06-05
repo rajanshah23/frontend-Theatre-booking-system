@@ -69,7 +69,7 @@ const Navbar = () => {
     );
   };
 
-  // Add admin dashboard link only if authenticated and user role is admin
+  
   const navLinks = [
     { path: "/", label: "Home" },
     ...(isAuthenticated ? [{ path: "/shows", label: "Browse Shows" }] : []),

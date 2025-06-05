@@ -1,20 +1,24 @@
+// src/services/showService.ts
+
 import api from "./api";
 import axios from "axios";
 import { Show, Booking } from "../types";
 
 const API = "http://localhost:3000/api/shows";
 
+// Fetch all shows
 export const getShows = async (): Promise<Show[]> => {
   const response = await api.get("/shows");
   return response.data.data;
 };
 
+// Fetch a single show by ID
 export const getShow = async (id: string): Promise<Show> => {
   const response = await api.get(`/shows/${id}`);
   return response.data.data;
 };
 
- 
+// Book ticket for a show
 export const bookTicket = async (
   booking: Booking
 ): Promise<{
@@ -29,16 +33,17 @@ export const bookTicket = async (
       showTime: booking.showTime,
       seatNumbers: booking.seatNumbers,
     });
- 
+
+    // If payment method is KHALTI, return payment URL
     if (booking.paymentMethod.toUpperCase() === "KHALTI") {
       return {
         booking: response.data.booking,
-        paymentUrl: response.data.paymentUrl
+        paymentUrl: response.data.paymentUrl,
       };
     }
-    
+
     return {
-      booking: response.data.booking
+      booking: response.data.booking,
     };
   } catch (error: any) {
     if (error.response?.data?.message)
@@ -46,6 +51,8 @@ export const bookTicket = async (
     throw new Error("Booking failed");
   }
 };
+
+// Get seats availability for a show
 export const getSeatsAvailability = async (
   showId: string
 ): Promise<
