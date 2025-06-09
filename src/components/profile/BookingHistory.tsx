@@ -21,7 +21,7 @@ const BookingHistory = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-    const response = await api.get("/users/me/bookings");
+    const response = await api.get("/bookings/users/me/bookings");
         console.log("Bookings response data:", response.data);
         if (response.data && response.data.length > 0) {
           setBookings(response.data);  
@@ -47,10 +47,10 @@ const BookingHistory = () => {
   if (bookings.length === 0) return <p>No bookings found.</p>;
 
   return (
-    <div className="bg-white shadow p-6 rounded-lg">
+    <div className="bg-yellow-200 shadow p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Past Bookings</h2>
       {bookings.map((b) => (
-        <div key={b.id} className="mb-4 border-b pb-2">
+        <div key={b.id} className="mb-4 border-b pb-4">
           <p>
             <strong>Show:</strong> {b.show.title}
           </p>

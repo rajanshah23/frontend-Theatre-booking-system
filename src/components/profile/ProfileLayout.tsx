@@ -9,7 +9,7 @@ const ProfileLayout = () => {
     }`;
 
   return (
-    <div className="max-w-6xl mx-auto px-8 py-8 grid grid-cols-1 md:grid-cols-4 gap-7">
+    <div className="max-w-7xl mx-auto px-8 py-8 grid grid-cols-1 md:grid-cols-4 gap-7">
       <aside className="bg-white shadow-md rounded-lg p-4">
         <h2 className="text-lg font-bold mb-8">My Account</h2>
         <nav className="space-y-2">

@@ -1,46 +1,46 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Home from "./components/Home";
+import Home, { About } from "./components/Home";
 import ShowDetails from "./components/ShowDetails";
-import ForgotPassword from "./components/ForgotPasssword";
-import ResetPassword from "./components/ResetPassword";
+import Settings from "./components/settings/setting";
 import ProfileLayout from "./components/profile/ProfileLayout";
-import VerifyOtp from "./components/VerifyOtp";
+ 
 import Login from "./components/Login";
 import Signup from "./components/signup";
-// import {Bookings} from "./components/Booking";
 import PaymentPage from "./components/PaymentPage";
-import Settings from "./components/settings/setting";
 import PaymentSuccess from "./components/PaymentSuccess";
 import BookingHistory from "./components/profile/BookingHistory";
 import ChangePassword from "./components/profile/ChangePassword";
 import ProfileInfo from "./components/profile/ProfileInfo";
 import UpdateProfileForm from "./components/profile/UpdateProfileForm";
-import AccountDeletion from "./components/settings/AccountDeletion";
-import { Toaster } from "react-hot-toast";
+ 
+import BrowseShows from "./components/BrowseShows";
+ import AccountDeletion from "./components/settings/AccountDeletion";
 import Booking from "./components/Booking";
 import AdminDashboard from "./components/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Toaster } from "react-hot-toast";
+import ForgotPasswordFlow from "./components/ForgotPasswordFlow";
+ 
+
 const App = () => {
   return (
     <Router>
       <Toaster position="top-right" reverseOrder={false} />
-
       <Navbar />
 
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/shows" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/shows" element={<BrowseShows />} />
           <Route path="/shows/:id" element={<ShowDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/bookings" element={<Booking />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/verify-otp" element={<VerifyOtp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/forgot-password" element={<ForgotPasswordFlow />} />
           <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
 
           {/* Profile Routes */}
           <Route path="/profile" element={<ProfileLayout />}>
@@ -51,16 +51,16 @@ const App = () => {
           </Route>
 
           {/* Admin Route */}
-     <Route
-  path="/admin"
-  element={
-    <ProtectedRoute role="admin">
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-/>
-
-          {/* Settings */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute role="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+ 
+            {/* Settings */}
           <Route path="/settings" element={<Settings />} />
           <Route
             path="/settings/account-deletion"

@@ -58,7 +58,7 @@ const UpdateProfileForm = () => {
   if (loading) return <p>Loading form...</p>;
 
   return (
-    <div className="bg-white shadow p-6 rounded-lg">
+    <div className="bg-yellow-200 shadow p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Update Profile</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">

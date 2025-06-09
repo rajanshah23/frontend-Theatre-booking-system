@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient'; // Make sure this is correctly set up
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -8,41 +9,50 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
- const handleSignup = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  if (!email || !name || !password) {
-    setError('Please fill in all fields.');
-    return;
-  }
-
-  try {
-    const res = await fetch('http://localhost:3000/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: name,
-        email,
-        password,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || 'Something went wrong');
+    if (!email || !name || !password) {
+      setError('Please fill in all fields.');
       return;
     }
 
-    console.log('Signup success:', data);
-    navigate('/login');
-  } catch (err) {
-    console.error('Signup error:', err);
-    setError('Server error');
-  }
-};
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: name,
+          email,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong');
+        return;
+      }
+
+      console.log('Signup success:', data);
+      navigate('/login');
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Server error');
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+    if (error) {
+      setError('Google signup failed. Please try again.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -86,7 +96,22 @@ const Signup = () => {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600">
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">or</p>
+          <button
+            onClick={handleGoogleSignup}
+            className="mt-3 w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google"
+              className="w-5 h-5 mr-2"
+            />
+            Continue with Google
+          </button>
+        </div>
+
+        <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{' '}
           <button
             onClick={() => navigate('/login')}

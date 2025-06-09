@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-const ForgotPassword = () => {
+type ForgotPasswordProps = {
+  onSuccess: (email: string) => void;
+};
+
+const ForgotPassword: React.FC<ForgotPasswordProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -9,28 +13,30 @@ const ForgotPassword = () => {
     e.preventDefault();
     setMessage(null);
     setLoading(true);
+
     try {
-      const res = await fetch("/api/forgot-password", {
+      const res = await fetch("http://localhost:3000/api/auth/forgot-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
 
-      if (res.ok) {
-        setMessage(" OTP sent to your email! Please check your inbox.");
-      } else {
-        setMessage(` ${data.message || "Error sending OTP"}`);
-      }
-    } catch (err) {
-      setMessage(" Network error. Please try again.");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+
+      setMessage(" OTP sent to your email.");
+      onSuccess(email);
+    } catch (err: any) {
+      setMessage(err.message || "Network error. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
           Forgot Password
@@ -56,20 +62,16 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white font-medium 
-              ${loading ? "bg-yellow-300 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600"}
-            `}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white font-medium ${
+              loading ? "bg-yellow-300 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600"
+            }`}
           >
             {loading ? "Sending..." : "Send OTP"}
           </button>
         </form>
 
         {message && (
-          <p
-            className={`mt-4 text-center text-sm ${
-              message.startsWith("✅") ? "text-green-600" : "text-red-600"
-            }`}
-          >
+          <p className={`mt-4 text-center text-sm ${message.startsWith("") ? "text-green-600" : "text-red-600"}`}>
             {message}
           </p>
         )}
@@ -78,4 +80,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ForgotPassword

@@ -9,12 +9,15 @@ import {
 import { getShow, bookTicket, getSeatsAvailability } from "../services/show";
 import { Show, SeatAvailability } from "../types";
 import { areSeatsAvailable } from "../utils/seats";
+import ReviewForm from "../components/ReviewForm";
+import ReviewList from "../components/ReviewList";
 
 type PaymentMethod = "KHALTI" | "CASH" | "CARD" | "ONLINE";
 const paymentOptions: PaymentMethod[] = ["KHALTI", "CASH", "CARD", "ONLINE"];
 
 const ShowDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const showId = Number(id);
   const navigate = useNavigate();
   const [show, setShow] = useState<Show | null>(null);
   const [loading, setLoading] = useState(true);
@@ -57,7 +60,14 @@ const ShowDetails: React.FC = () => {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated) return navigate("/login");
+   
+    if (!isAuthenticated) {
+  navigate("/login", {
+    state: { from: `/shows/${id}` },
+  });
+  return;
+}
+
     if (!id || booking.seats.length === 0) {
       setBookingError("Please select at least one seat.");
       return;
@@ -72,6 +82,7 @@ const ShowDetails: React.FC = () => {
     const seatIds = booking.seats
       .map((seat) => seatIdMap[seat])
       .filter((id): id is number => id !== undefined);
+
     if (seatIds.length !== booking.seats.length) {
       setBookingError(
         "Some selected seats are invalid. Please refresh and try again."
@@ -97,18 +108,17 @@ const ShowDetails: React.FC = () => {
           price: show?.price || 0,
         })
       );
+
       if (booking.paymentMethod === "KHALTI") {
         const response = await bookTicket({
           showId: id.toString(),
           seatNumbers: booking.seats,
-
-          seatIds: booking.seats
-            .map((seat) => seatIdMap[seat])
-            .filter((id): id is number => id !== undefined),
+          seatIds,
           showTime: booking.showTime,
           paymentMethod: booking.paymentMethod,
-          totalAmount: totalAmount,
+          totalAmount,
         });
+
         if (response.paymentUrl) {
           window.location.href = response.paymentUrl;
           return;
@@ -121,7 +131,7 @@ const ShowDetails: React.FC = () => {
         state: {
           showId: id,
           paymentMethod: booking.paymentMethod,
-          totalAmount: totalAmount,
+          totalAmount,
         },
       });
     } catch (error: any) {
@@ -130,6 +140,7 @@ const ShowDetails: React.FC = () => {
       setIsBooking(false);
     }
   };
+
   useEffect(() => {
     const fetchShow = async () => {
       try {
@@ -200,15 +211,12 @@ const ShowDetails: React.FC = () => {
 
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="p-8">
-            {/* Title and Description */}
             <h1 className="text-3xl font-bold text-gray-900 mb-6">
               {show.title}
             </h1>
             <p className="text-gray-700 mb-8">{show.description}</p>
 
-            {/* Image and Details Side by Side */}
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              {/* Image */}
               {show.image && (
                 <div>
                   <img
@@ -218,19 +226,6 @@ const ShowDetails: React.FC = () => {
                   />
                 </div>
               )}
-
-              {/* Details */}
-              {/* <div className="space-y-3">
-                <p>
-                  <strong>Date:</strong> {show.date}
-                </p>
-                <p>
-                  <strong>Price per seat:</strong> NPR {show.price}
-                </p>
-                <p>
-                  <strong>Total Seats:</strong> {show.totalSeats}
-                </p>
-              </div> */}
             </div>
           </div>
         </div>
@@ -249,6 +244,7 @@ const ShowDetails: React.FC = () => {
                 {bookingError}
               </div>
             )}
+
             <div className="flex justify-end m-2">
               <button
                 type="button"
@@ -275,12 +271,13 @@ const ShowDetails: React.FC = () => {
                 Group
               </button>
             </div>
+
             <div className="mb-6">
               <label className="block text-xl font-medium text-black-700 mb-1">
                 Show Time
               </label>
               <input
-                type="text"
+                type="Time"
                 value={booking.showTime}
                 onChange={(e) =>
                   setBooking({ ...booking, showTime: e.target.value })
@@ -292,20 +289,27 @@ const ShowDetails: React.FC = () => {
 
             <div className="mb-6">
               <label className="block text-xl font-medium text-black-700 mb-2">
-                Select Seats
+                Select Your Seats
               </label>
-
               <div className="bg-white p-5 rounded-lg border border-gray-200">
                 <div className="text-center mb-8">
-                  <div className="h-3 w-full max-w-4xl mx-auto bg-gray-200 rounded"></div>
-                  <div className="text-gray-600 mt-1">Screen This Way</div>
+                  <div className="relative h-6 w-full max-w-4xl mx-auto bg-blue-900 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-lg select-none rounded-full">
+                      Screen
+                    </span>
+                  </div>
+                  <div className="text-gray-600 mt-1">
+                    All seats face the screen
+                  </div>
                 </div>
+
                 {seatsLoading && (
                   <p className="text-center text-yellow-500">
                     Loading seats...
                   </p>
                 )}
-                <div className="max-w-4xl mx-auto grid grid-cols-10 gap-1">
+
+                <div className="max-w-2xl mx-auto grid grid-cols-10 gap-1">
                   {seatRows.map((row) =>
                     Array.from({ length: seatsPerRow }, (_, i) => {
                       const seatNum = `${row}${i + 1}`;
@@ -334,20 +338,22 @@ const ShowDetails: React.FC = () => {
                     })
                   )}
                 </div>
+
                 <div className="mt-2 grid grid-cols-4 text-center gap-2 max-w-2xl mx-auto">
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-gray-200"></div>{" "}
-                    Available
+                    <div className="h-4 w-4 bg-red-500 rounded-sm" />
+                    Booked
                   </span>
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-red-500"></div> Booked
-                  </span>
-                  <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-orange-400"></div>{" "}
+                    <div className="h-4 w-4 bg-orange-400 rounded-sm" />
                     Reserved
                   </span>
                   <span className="flex items-center justify-center gap-1">
-                    <div className="h-5 w-5 rounded bg-yellow-300"></div>{" "}
+                    <div className="h-4 w-4 bg-gray-200 rounded-sm" />
+                    Available
+                  </span>
+                  <span className="flex items-center justify-center gap-1">
+                    <div className="h-4 w-4 bg-yellow-300 rounded-sm" />
                     Selected
                   </span>
                 </div>
@@ -355,14 +361,10 @@ const ShowDetails: React.FC = () => {
             </div>
 
             <div className="mb-6">
-              <label
-                htmlFor="paymentMethod"
-                className="block text-xl font-medium text-black-700 mb-1"
-              >
+              <label className="block text-xl font-medium text-black-700 mb-1">
                 Payment Method
               </label>
               <select
-                id="paymentMethod"
                 value={booking.paymentMethod}
                 onChange={(e) =>
                   setBooking({
@@ -370,7 +372,7 @@ const ShowDetails: React.FC = () => {
                     paymentMethod: e.target.value as PaymentMethod,
                   })
                 }
-                className="w-full p-3 rounded border border-gray-300 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-yellow-500 focus:border-yellow-500"
               >
                 {paymentOptions.map((method) => (
                   <option key={method} value={method}>
@@ -380,18 +382,22 @@ const ShowDetails: React.FC = () => {
               </select>
             </div>
 
-            <div className="text-lg mb-6 font-semibold text-black-900">
-              Total Price: NPR {booking.seats.length * (show.price || 0)}
-            </div>
-
             <button
               type="submit"
-              className="w-full bg-yellow-500 text-white font-bold py-3 rounded hover:bg-yellow-600 transition"
               disabled={isBooking}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300"
             >
-              {isBooking ? "Booking..." : "Confirm Booking"}
+              {isBooking ? "Processing..." : "Book Now"}
             </button>
           </form>
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-5 text-gray-800">
+            User Reviews
+          </h2>
+          {showId && <ReviewForm showId={showId} />}
+          {showId && <ReviewList showId={showId} />}
         </div>
       </div>
     </div>

@@ -34,8 +34,8 @@ export interface SeatAvailability {
   id: number;
   title: string;
   description: string;
-  date: string;         // in YYYY-MM-DD format
-  time: string;         // in HH:mm format
+  date: string; 
+  time: string;          
   totalSeats: number;
-  image: string;        // image URL
+  image: string;         
 }
