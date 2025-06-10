@@ -49,29 +49,37 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Reset Password</h2>
         <form onSubmit={handleResetPassword} className="space-y-6">
-          <input
-            type="email"
-            value={email}
-            required
-            className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm"
-          />
+         <input
+  type="email"
+  value={email}
+  readOnly
+  required
+  className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+/>
 
-          <input
+ <input
             type="password"
             placeholder="New password"
             required
             value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              if (message) setMessage(null);
+            }}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
             disabled={loading}
           />
+         
 
-          <input
+         <input
             type="password"
             placeholder="Confirm new password"
             required
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (message) setMessage(null);
+            }}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
             disabled={loading}
           />
