@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 type VerifyOtpProps = {
   email: string;
@@ -28,6 +29,7 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({ email, onSuccess, onBack }) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Invalid OTP");
 
+      toast.success("OTP verified successfully!");
       onSuccess();
     } catch (err: any) {
       setMessage(err.message || "Network error");
@@ -79,7 +81,7 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({ email, onSuccess, onBack }) => {
           <button
             type="button"
             onClick={onBack}
-            className="w-full mt-2 text-sm text-yellow-600 hover:underline text-center"
+             className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50"
           >
             Back
           </button>
