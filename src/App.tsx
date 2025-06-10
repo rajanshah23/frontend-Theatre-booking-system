@@ -4,7 +4,6 @@ import Home, { About } from "./components/Home";
 import ShowDetails from "./components/ShowDetails";
 import Settings from "./components/settings/setting";
 import ProfileLayout from "./components/profile/ProfileLayout";
- 
 import Login from "./components/Login";
 import Signup from "./components/signup";
 import PaymentPage from "./components/PaymentPage";
@@ -13,15 +12,13 @@ import BookingHistory from "./components/profile/BookingHistory";
 import ChangePassword from "./components/profile/ChangePassword";
 import ProfileInfo from "./components/profile/ProfileInfo";
 import UpdateProfileForm from "./components/profile/UpdateProfileForm";
- 
 import BrowseShows from "./components/BrowseShows";
- import AccountDeletion from "./components/settings/AccountDeletion";
+import AccountDeletion from "./components/settings/AccountDeletion";
 import Booking from "./components/Booking";
 import AdminDashboard from "./components/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
 import ForgotPasswordFlow from "./components/ForgotPasswordFlow";
- 
 
 const App = () => {
   return (
@@ -59,8 +56,8 @@ const App = () => {
               </ProtectedRoute>
             }
           />
- 
-            {/* Settings */}
+
+          {/* Settings */}
           <Route path="/settings" element={<Settings />} />
           <Route
             path="/settings/account-deletion"

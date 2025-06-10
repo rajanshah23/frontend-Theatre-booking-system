@@ -1,14 +1,19 @@
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import api from "../../services/api";
 
 function AccountDeletion() {
   const [password, setPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [email, setEmail] = useState("");
   const handleDelete = async () => {
     if (confirmText !== "DELETE") {
       toast.error("Please type DELETE to confirm.");
+      return;
+    }
+    if (!email) {
+      toast.error("Please enter your email.");
       return;
     }
 
@@ -19,25 +24,22 @@ function AccountDeletion() {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/account/delete", {
-        method: "POST",  
-        headers: {
-          "Content-Type": "application/json",
-        
-        },
-        body: JSON.stringify({ password }),
+
+      const res = await api.post("http://localhost:3000/api/account/delete", {
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Failed to delete account.");
+      
+      if (res.status === 204 || res.data?.success) {
+        toast.success("✔ Account deleted successfully.");
+        return;
       }
 
-      toast.success("Account deleted successfully.");
- 
+      toast.error(res.data?.message || "❌Failed to delete account.");
     } catch (error: any) {
-      toast.error(error.message || "An unexpected error occurred.");
+      toast.error(
+        error.response?.data?.message || "An unexpected error occurred."
+      );
     } finally {
       setLoading(false);
     }
@@ -46,10 +48,19 @@ function AccountDeletion() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="space-y-4 bg-gray-100 p-6 rounded-lg shadow max-w-md  ">
+      <div className="space-y-4 bg-gray-100 p-6 rounded-lg shadow max-w-md">
         <p className="text-red-600 font-semibold">
-          Warning: Deleting your account is irreversible. All your data will be lost.
+          Warning: Deleting your account is irreversible. All your data will be
+          lost.
         </p>
+
+         <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border px-3 py-2 rounded w-full"
+        />
 
         <input
           type="password"
