@@ -31,7 +31,7 @@ function AccountDeletion() {
 
       
       if (res.status === 204 || res.data?.success) {
-        toast.success("✔ Account deleted successfully.");
+        toast.success("✅ Account deleted successfully.");
         return;
       }
 
