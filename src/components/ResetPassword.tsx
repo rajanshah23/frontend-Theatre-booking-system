@@ -1,29 +1,24 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
-type ResetPasswordProps = {
+interface ResetPasswordProps {
   email: string;
   onSuccess: () => void;
-};
+}
 
-const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
+const ResetPassword: React.FC<ResetPasswordProps> = ({ email: initialEmail, onSuccess }) => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState(initialEmail || "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
-  async function handleResetPassword(e: React.FormEvent) {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email) {
-      toast.error("Email session expired. Please start over.");
-      return;
-    }
-
-    if (!newPassword || !confirmPassword) {
-      toast.error("Both password fields are required");
+    if (!email.trim() || !newPassword || !confirmPassword) {
+      toast.error("All fields are required");
       return;
     }
 
@@ -43,7 +38,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
       const res = await fetch("http://localhost:3000/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, newPassword, confirmPassword }),
+        body: JSON.stringify({ email, newPassword,confirmPassword }),
       });
 
       const data = await res.json();
@@ -52,15 +47,14 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
         throw new Error(data.message || "Password reset failed");
       }
 
-      toast.success("Password reset successful! Redirecting to login...");
-      onSuccess();
-      setTimeout(() => navigate("/login"), 2000);
+      toast.success("Password reset successful!");
+      onSuccess();  
     } catch (err: any) {
-      toast.error(err.message || "Network error. Please try again.");
+      toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -69,22 +63,30 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
           Reset Password
         </h2>
 
-        <div className="mb-4">
-          <p className="text-sm text-gray-600 mb-1">Email address</p>
-          <div className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-            {email}
-          </div>
-        </div>
-
         <form onSubmit={handleResetPassword} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email address
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
+              disabled={loading}
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               New Password
             </label>
             <input
               type="password"
-              placeholder="At least 6 characters"
               required
+              placeholder="At least 6 characters"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
@@ -98,8 +100,8 @@ const ResetPassword: React.FC<ResetPasswordProps> = ({ email, onSuccess }) => {
             </label>
             <input
               type="password"
-              placeholder="Retype your password"
               required
+              placeholder="Retype your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
