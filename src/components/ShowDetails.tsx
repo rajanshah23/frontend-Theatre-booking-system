@@ -216,17 +216,18 @@ const ShowDetails: React.FC = () => {
             </h1>
             <p className="text-gray-700 mb-8">{show.description}</p>
 
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              {show.image && (
-                <div>
-                  <img
-                    src={`http://localhost:3000/uploads/${show.image}`}
-                    alt={show.title}
-                    className="w-80 h-100 object-cover rounded"
-                  />
-                </div>
-              )}
-            </div>
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+  {show.image && (
+    <div>
+      <img
+        src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${show.image}`}
+        alt={show.title}
+        className="w-80 h-100 object-cover rounded"
+      />
+    </div>
+  )}
+</div>
+
           </div>
         </div>
 
