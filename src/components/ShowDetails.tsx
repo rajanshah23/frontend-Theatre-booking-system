@@ -60,13 +60,13 @@ const ShowDetails: React.FC = () => {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-   
+
     if (!isAuthenticated) {
-  navigate("/login", {
-    state: { from: `/shows/${id}` },
-  });
-  return;
-}
+      navigate("/login", {
+        state: { from: `/shows/${id}` },
+      });
+      return;
+    }
 
     if (!id || booking.seats.length === 0) {
       setBookingError("Please select at least one seat.");
@@ -215,19 +215,15 @@ const ShowDetails: React.FC = () => {
               {show.title}
             </h1>
             <p className="text-gray-700 mb-8">{show.description}</p>
-
-        <div className="flex flex-col md:flex-row gap-8 items-start">
-  {show.image && (
-    <div>
-      <img
-        src={`${import.meta.env.VITE_API_BASE_URL}/uploads/${show.image}`}
-        alt={show.title}
-        className="w-80 h-100 object-cover rounded"
-      />
-    </div>
-  )}
-</div>
-
+            <img
+              src={
+                show.image
+                  ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${show.image}`
+                  : "/fallback.jpg"
+              }
+              alt={show.title}
+              className="w-80 h-100 object-cover rounded"
+            />
           </div>
         </div>
 
