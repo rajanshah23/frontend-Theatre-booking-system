@@ -9,5 +9,5 @@ export default defineConfig({
   build: {
     outDir: "dist",
   },
-  base:  import.meta.env.VITE_BASE_PATH || "/",
+  base:  process.env.VITE_BASE_PATH || "/",
 });
