@@ -4,8 +4,6 @@ import axios from "axios";
 import {
   CheckCircleIcon,
   XCircleIcon,
-  DocumentArrowDownIcon,
-  EnvelopeIcon,
 } from "@heroicons/react/24/solid";
 import api from "../services/api";
 
@@ -37,6 +35,7 @@ const PaymentSuccess = () => {
 
         setVerificationStatus("success");
         setBooking(response.data.booking);
+        console.log("Verified Booking:", response.data.booking);
       } catch (error: any) {
         setVerificationStatus("failed");
         setError(
@@ -49,42 +48,53 @@ const PaymentSuccess = () => {
 
     verifyPayment();
   }, [location]);
-  const handleResendEmail = async () => {
-    if (!booking?.id) return;
 
-    try {
-      setSendingEmail(true);
-      await axios.post(
-        `http://localhost:3000/api/bookings/${booking.id}/resend-email`
-      );
-      setEmailSent(true);
-    } catch (error) {
-      setError("Failed to resend email");
-    } finally {
-      setSendingEmail(false);
-    }
-  };
+ const handleResendEmail = async () => {
+  if (!booking?.id) return;
 
-  const handleDownloadTicket = async () => {
-    if (!booking?.id) return;
+  try {
+    setSendingEmail(true);
+    await api.post(`/shows/bookings/${booking.id}/resend-email`);
+    setEmailSent(true);
+  } catch (error) {
+    setError("Failed to resend email");
+  } finally {
+    setSendingEmail(false);
+  }
+};
 
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/api/shows/bookings/${booking.id}/ticket`,
-        { responseType: "blob" }
-      );
+const handleDownloadTicket = async () => {
+  if (!booking?.id) return;
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `ticket-${booking.id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      setError("Failed to download ticket");
-    }
-  };
+  try {
+    const response = await api.get(
+      `/shows/bookings/${booking.id}/ticket`,
+      { responseType: "blob" }
+    );
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `ticket-${booking.id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    setError("Failed to download ticket");
+  }
+};
+ 
+  const formattedDate = booking?.show?.date
+    ? new Date(booking.show.date).toLocaleDateString()
+    : "N/A";
+
+  const formattedTime =
+    booking?.show?.time && booking?.show?.date
+      ? new Date(`${booking.show.date}T${booking.show.time}`).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "N/A";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -110,36 +120,40 @@ const PaymentSuccess = () => {
             <p className="text-gray-600 mt-2">
               Your booking #{booking?.id} has been confirmed
             </p>
-            <div className="mt-6 bg-green-50 p-4 rounded-md">
+            <div className="mt-6 bg-green-50 p-4 rounded-md text-left">
               <h3 className="font-semibold">Booking Details</h3>
-              <div className="space-y-3">
-                <p>
-                  <span className="font-medium">Booking ID:</span> #
-                  {booking?.id}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span> Confirmed
-                </p>
-                <p>
-                  <span className="font-medium">Show:</span>{" "}
-                  {booking?.show?.title}
-                </p>
-                <p>
-                  <span className="font-medium">Date:</span>
-                  {new Date(booking?.show?.date).toLocaleDateString()}
-                </p>
-                <p>
-                  <span className="font-medium">Time:</span> {booking?.showTime}
-                </p>
+              <div className="space-y-3 mt-2">
+                <p><span className="font-medium">Booking ID:</span> #{booking?.id}</p>
+                <p><span className="font-medium">Status:</span> Confirmed</p>
+                <p><span className="font-medium">Show:</span> {booking?.show?.title || "N/A"}</p>
+                <p><span className="font-medium">Date:</span> {formattedDate}</p>
+                <p><span className="font-medium">Time:</span> {formattedTime}</p>
               </div>
             </div>
 
-            <button
-              onClick={() => navigate("/bookings")}
-              className="mt-6 bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
-            >
-              View My Bookings
-            </button>
+            <div className="mt-6 space-y-2">
+              <button
+                onClick={() => navigate("/bookings")}
+                className="w-full bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
+              >
+                View My Bookings
+              </button>
+
+              <button
+                onClick={handleDownloadTicket}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                Download Ticket
+              </button>
+
+              <button
+                onClick={handleResendEmail}
+                disabled={sendingEmail}
+                className="w-full bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 disabled:opacity-50"
+              >
+                {emailSent ? "Email Sent!" : "Resend Email"}
+              </button>
+            </div>
           </div>
         )}
 

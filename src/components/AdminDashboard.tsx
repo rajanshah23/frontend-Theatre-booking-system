@@ -215,8 +215,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto text-white">
-      <h1 className="text-3xl font-extrabold mb-10 text-center text-violet-900 underline underline-offset-4">Admin Dashboard</h1>
-
+      <h1 className="text-3xl font-extrabold mb-10 text-center text-violet-900 underline underline-offset-4">Show Management</h1>
+       
       {/* Show Form */}
       <form onSubmit={handleSubmit} className="space-y-5 bg-gray-900 p-6 rounded-xl shadow-xl border border-gray-700">
         <div className="grid md:grid-cols-2 gap-4">

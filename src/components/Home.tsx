@@ -21,7 +21,7 @@ interface Review {
 }
 
 const FeaturedShowCard = ({ show }: { show: Show }) => (
-  <div className="relative rounded-lg overflow-hidden shadow-lg h-80">
+  <div className="relative rounded-lg overflow-hidden shadow-sm h-80">
     <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
     <img
       src={`http://localhost:3000/uploads/${show.image || "placeholder.jpg"}`}
