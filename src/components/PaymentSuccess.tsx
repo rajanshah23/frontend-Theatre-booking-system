@@ -29,7 +29,7 @@ const PaymentSuccess = () => {
         }
 
         const response = await api.post(
-          "http://localhost:3000/api/shows/bookings/verify-payment",
+          `${import.meta.env.VITE_BACKEND_URL}/api/shows/bookings/verify-payment`,
           { pidx }
         );
 

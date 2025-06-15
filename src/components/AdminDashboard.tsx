@@ -156,7 +156,7 @@ const AdminDashboard = () => {
     setTime(show.time);
     setTotalSeats(show.totalSeats);
     setPrice(show.price);
-    setImagePreview(`http://localhost:3000/uploads/${show.image}`);
+    setImagePreview(`${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image}`);
     setEditId(show.id);
   };
 
@@ -239,10 +239,10 @@ const AdminDashboard = () => {
         {shows.map(show => (
           <div key={show.id} className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <img
-              src={`http://localhost:3000/uploads/${show.image || "placeholder.jpg"}`}
+              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image || "placeholder.jpg"}`}
               alt={show.title}
               className="w-full h-48 object-cover"
-              onError={(e) => ((e.target as HTMLImageElement).src = "http://localhost:3000/uploads/placeholder.jpg")}
+              onError={(e) => ((e.target as HTMLImageElement).src = `${import.meta.env.VITE_BACKEND_URL}/uploads/placeholder.jpg`)}
             />
             <div className="p-4 space-y-2">
               <h2 className="text-lg font-bold text-yellow-300">{show.title}</h2>

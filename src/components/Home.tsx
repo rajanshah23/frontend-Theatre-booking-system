@@ -24,7 +24,7 @@ const FeaturedShowCard = ({ show }: { show: Show }) => (
   <div className="relative rounded-lg overflow-hidden shadow-sm h-80">
     <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
     <img
-      src={`http://localhost:3000/uploads/${show.image || "placeholder.jpg"}`}
+      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image || "placeholder.jpg"}`}
       alt={show.title}
       className="w-full h-full object-cover absolute inset-0"
     />
@@ -73,7 +73,7 @@ const Home = () => {
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/shows");
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/shows`);
         if (!response.ok) throw new Error("Failed to fetch shows");
         const result = await response.json();
         setShows(Array.isArray(result.data) ? result.data : []);
@@ -139,7 +139,7 @@ const Home = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/api/contact", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

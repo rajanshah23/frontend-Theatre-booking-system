@@ -24,7 +24,7 @@ interface CurrentUser {
   role: string;
 }
 
-// Get current user data from localStorage
+ 
 const getCurrentUser = (): CurrentUser | null => {
   try {
     const user = JSON.parse(localStorage.getItem("user") || "{}");

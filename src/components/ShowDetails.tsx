@@ -218,7 +218,7 @@ const ShowDetails: React.FC = () => {
             <img
               src={
                 show.image
-                  ? `http://localhost:3000/uploads/${show.image} `
+                  ? `${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image} `
                   : "/fallback.jpg"
               }
               alt={show.title}

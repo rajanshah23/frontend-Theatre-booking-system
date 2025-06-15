@@ -4,7 +4,7 @@ import api from "./api";
 import axios from "axios";
 import { Show, Booking } from "../types";
 
-const API = "http://localhost:3000/api/shows";
+const API = `${import.meta.env.VITE_BACKEND_URL}/api/shows`;
 
 // Fetch all shows
 export const getShows = async (): Promise<Show[]> => {

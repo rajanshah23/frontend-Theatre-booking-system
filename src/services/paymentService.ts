@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:3000/api/shows";
+const API = `${import.meta.env.VITE_BACKEND_URL}/api/shows`
 
 export const initiatePayment = async (bookingId: number, totalAmount: number) => {
   try {

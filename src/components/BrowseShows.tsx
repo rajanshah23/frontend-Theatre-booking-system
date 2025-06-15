@@ -16,7 +16,7 @@ const ShowCard = ({ show }: { show: Show }) => (
   <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 transform hover:-translate-y-1">
     <div className="h-60 overflow-hidden">
       <img
-        src={`http://localhost:3000/uploads/${show.image ?? "placeholder.jpg"}`}
+        src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image ?? "placeholder.jpg"}`}
         alt={show.title || "Show image"}
         className="w-full h-full object-cover"
         onError={(e) => {
@@ -57,7 +57,7 @@ const BrowseShows: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:3000/api/shows");
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/shows`);
         if (!res.ok) throw new Error("Failed to fetch shows");
         const data = await res.json();
         setShows(data.data);  
