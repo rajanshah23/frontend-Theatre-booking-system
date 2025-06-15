@@ -21,10 +21,9 @@ interface Review {
 }
 
 const FeaturedShowCard = ({ show }: { show: Show }) => {
-  const imageUrl = show.image
-    ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}/${show.image}`
-    : "/fallback.jpg";
-
+const imageUrl = show.image
+  ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}/${show.image.replace(/^\/+/, '')}`
+  : "/fallback.jpg";
   return (
     <div className="relative rounded-lg overflow-hidden shadow-sm h-80">
       <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
