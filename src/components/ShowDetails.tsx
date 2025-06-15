@@ -199,7 +199,7 @@ const ShowDetails: React.FC = () => {
   if (!show) return null;
 
   const imageUrl = show.image
-    ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}${show.image}`
+    ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}/${show.image}`
     : "/fallback.jpg";
 
   return (
