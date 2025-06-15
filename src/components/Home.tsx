@@ -20,28 +20,34 @@ interface Review {
   image?: string;
 }
 
-const FeaturedShowCard = ({ show }: { show: Show }) => (
-  <div className="relative rounded-lg overflow-hidden shadow-sm h-80">
-    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-    <img
-      src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${show.image || "placeholder.jpg"}`}
-      alt={show.title}
-      className="w-full h-full object-cover absolute inset-0"
-    />
-    <div className="absolute bottom-0 left-0 p-4 z-10">
-      <h2 className="text-lg font-bold text-white mb-1">{show.title}</h2>
-      <p className="text-gray-300 text-sm mb-2 line-clamp-2">
-        {show.description}
-      </p>
-      <Link
-        to={`/shows/${show.id}`}
-        className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-semibold"
-      >
-        Book Tickets
-      </Link>
+const FeaturedShowCard = ({ show }: { show: Show }) => {
+  const imageUrl = show.image
+    ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}/${show.image}`
+    : "/fallback.jpg";
+
+  return (
+    <div className="relative rounded-lg overflow-hidden shadow-sm h-80">
+      <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+      <img
+        src={imageUrl}
+        alt={show.title}
+        className="w-full h-full object-cover absolute inset-0"
+      />
+      <div className="absolute bottom-0 left-0 p-4 z-10">
+        <h2 className="text-lg font-bold text-white mb-1">{show.title}</h2>
+        <p className="text-gray-300 text-sm mb-2 line-clamp-2">
+          {show.description}
+        </p>
+        <Link
+          to={`/shows/${show.id}`}
+          className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 py-2 rounded-md text-sm font-semibold"
+        >
+          Book Tickets
+        </Link>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ReviewCard = ({ name, content, image }: Review) => (
   <div className="bg-white rounded-lg p-6 shadow-md flex flex-col items-center text-center">
@@ -73,7 +79,9 @@ const Home = () => {
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/shows`);
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/shows`
+        );
         if (!response.ok) throw new Error("Failed to fetch shows");
         const result = await response.json();
         setShows(Array.isArray(result.data) ? result.data : []);
@@ -86,7 +94,7 @@ const Home = () => {
 
     fetchShows();
 
- const hour = new Date().getHours();
+    const hour = new Date().getHours();
 
     if (hour < 12) {
       setGreeting("Good morning");
@@ -139,15 +147,18 @@ const Home = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: contactName,
-          email: contactEmail,
-          message: contactMessage,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/contact`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: contactName,
+            email: contactEmail,
+            message: contactMessage,
+          }),
+        }
+      );
 
       if (response.ok) {
         setContactSuccess(true);
@@ -211,25 +222,24 @@ const Home = () => {
         </div>
       </div>
 
-  <section className="py-10 bg-red-900">
-  <div className="container mx-auto">
-    <div className="flex justify-between items-center mb-10">
-      <h2 className="text-4xl font-extrabold">Featured Shows</h2>
-      <Link
-        to="/shows"
-        className="text-yellow-500 hover:text-yellow-400 font-medium"
-      >
-        View All →
-      </Link>
-    </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-9">
-      {featuredShows.slice(0, 5).map((show) => (
-        <FeaturedShowCard key={show.id} show={show} />
-      ))}
-    </div>
-  </div>
-</section>
-
+      <section className="py-10 bg-red-900">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="text-4xl font-extrabold">Featured Shows</h2>
+            <Link
+              to="/shows"
+              className="text-yellow-500 hover:text-yellow-400 font-medium"
+            >
+              View All →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-9">
+            {featuredShows.slice(0, 5).map((show) => (
+              <FeaturedShowCard key={show.id} show={show} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Testimonials */}
       <section className="py-16 bg-red-900">
