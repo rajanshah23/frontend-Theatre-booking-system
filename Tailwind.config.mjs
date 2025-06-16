@@ -3,9 +3,6 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    // Add these to capture all possible class usage
-    "./node_modules/flowbite/**/*.js",
-    "./node_modules/react-toastify/dist/ReactToastify.css"
   ],
   theme: {
     extend: {
@@ -16,10 +13,5 @@ export default {
     },
   },
   plugins: [],
-  // Prevent purging of all classes (temporary)
-  safelist: [
-    {
-      pattern: /./, // Safelist all classes
-    },
-  ],
+  // Remove safelist if not needed
 }
