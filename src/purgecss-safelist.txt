@@ -1,0 +1,4 @@
+text-primary
+bg-secondary
+hover:bg-secondary
+focus:ring-primary
