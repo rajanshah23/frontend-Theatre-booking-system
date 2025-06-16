@@ -4,12 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-        "build": "NODE_ENV=production vite build",
-    "clean": "rimraf dist",
-    "rebuild": "npm run clean && npm run build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+"dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

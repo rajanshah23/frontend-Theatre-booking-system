@@ -81,30 +81,34 @@
 
 // export default App;
 
+
+
+
+
 // src/App.jsx
 import React from 'react';
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
-        <div className="p-8">
-          <div className="bg-red-500 text-white p-4 rounded mb-4">
-            <h1 className="text-2xl font-bold">CSS Test</h1>
-            <p>If this is red and has white text, Tailwind is working</p>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-red-500 p-6 text-center">
+          <h1 className="text-2xl font-bold text-white">CSS Status Check</h1>
+        </div>
+        <div className="p-6">
+          <div className="mb-4">
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-2">
+              <span className="font-bold">Success!</span> If this box is green, Tailwind is working
+            </div>
+            <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative">
+              <span className="font-bold">Info:</span> This box should be blue
+            </div>
           </div>
-          <div className="flex space-x-4">
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              Primary Button
-            </button>
-            <button className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-              Secondary Button
-            </button>
-          </div>
+          <button className="w-full bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded transition duration-200">
+            Test Button
+          </button>
         </div>
       </div>
     </div>
   );
 }
-
-export default App;

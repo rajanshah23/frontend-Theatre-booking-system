@@ -13,5 +13,4 @@ export default {
     },
   },
   plugins: [],
-  // Remove safelist if not needed
 }

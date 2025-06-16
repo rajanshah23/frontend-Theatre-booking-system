@@ -20,5 +20,14 @@ export default defineConfig(({ mode }) => {
       },
     },
     base: env.VITE_BASE_PATH || "/",
+  
+    css: {
+      postcss: {
+        plugins: [
+          require('@tailwindcss/postcss'),
+          require('autoprefixer'),
+        ],
+      },
+    },
   };
 });
