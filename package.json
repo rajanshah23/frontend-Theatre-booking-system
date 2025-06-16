@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+        "build": "NODE_ENV=production vite build",
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
     "lint": "eslint .",
