@@ -19,6 +19,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     base: env.VITE_BASE_PATH || "/",
-    // ✅ REMOVE css.postcss: Vite will automatically read postcss.config.js
+     
   };
 });
