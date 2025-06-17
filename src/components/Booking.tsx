@@ -37,7 +37,7 @@ const UserBookings = () => {
             return (
               <div key={booking.id} className="border rounded-lg p-4 flex space-x-6">
                 <img
-                  src={`${import.meta.env.VITE_BACKEND_URL}/uploads/${booking.show?.image}`}
+                  src={`http://localhost:3000/uploads/${booking.show?.image}`}
                   alt={booking.show?.title}
                   className="w-40 h-40 object-cover rounded"
                 />

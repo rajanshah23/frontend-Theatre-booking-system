@@ -18,7 +18,7 @@ const VerifyOtp: React.FC<VerifyOtpProps> = ({ email, onSuccess, onBack }) => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-otp`, {
+      const res = await fetch("http://localhost:3000/api/auth/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

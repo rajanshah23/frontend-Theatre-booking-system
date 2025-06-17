@@ -25,7 +25,7 @@ function AccountDeletion() {
     try {
       setLoading(true);
 
-      const res = await api.post(`${import.meta.env.VITE_BACKEND_URL}/api/account/delete`, {
+      const res = await api.post("http://localhost:3000/api/account/delete", {
         password,
       });
 

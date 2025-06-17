@@ -198,9 +198,6 @@ const ShowDetails: React.FC = () => {
   if (error) return <p className="text-center mt-10 text-red-600">{error}</p>;
   if (!show) return null;
 
- const imageUrl = show.image
-  ? `${import.meta.env.VITE_SUPABASE_IMAGE_URL}/${show.image.replace(/^\/+/, '')}`
-  : "/fallback.jpg";
   return (
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -219,7 +216,11 @@ const ShowDetails: React.FC = () => {
             </h1>
             <p className="text-gray-700 mb-8">{show.description}</p>
             <img
-              src={imageUrl}
+              src={
+                show.image
+                  ? `http://localhost:3000/uploads/${show.image} `
+                  : "/fallback.jpg"
+              }
               alt={show.title}
               className="w-80 h-100 object-cover rounded"
             />
