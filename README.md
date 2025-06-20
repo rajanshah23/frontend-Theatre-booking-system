@@ -16,7 +16,7 @@ A modern and responsive frontend for an online theatre booking platform, designe
 - 💳 Khalti payment integration for booking
 - 🔐 User authentication and profile management
 - 📅 Booking history and review system
-- 🧑‍💼 Admin dashboard for managing users, bookings, and shows
+- 🧑‍💼 Admin dashboard for managing users, shows, and payment
 - 📱 Fully responsive UI for all devices
 
 ---
