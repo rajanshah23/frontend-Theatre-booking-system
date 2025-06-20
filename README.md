@@ -2,14 +2,12 @@
 
 A modern and responsive frontend for an online theatre booking platform, designed to provide a seamless user experience for browsing shows, booking seats, making payments, and managing profiles. Built using React and Tailwind CSS, with integration to a Supabase-powered backend.
  
-
 ## 📸 Screenshots
 
-| Home Page | Booking Page |
-|-----------|--------------|
-|![Home Page](src/screenshots/Home.png) | ![Browse Show](src/screenshots/BrowseShow.png) |  ![My Booking](src/screenshots/MyBooking.png) | ![Admin Dashboard](src/screenshots/AdminDashboaard.png)
+| Home Page | Browse Show | My Booking | Admin Dashboard |
+|-----------|--------------|------------|------------------|
+| ![Home Page](src/screenshots/Home.png) | ![Browse Show](src/screenshots/BrowseShow.png) | ![My Booking](src/screenshots/MyBooking.png) | ![Admin Dashboard](src/screenshots/AdminDashboaard.png) |
 
----
 
 ## ✨ Features
 
