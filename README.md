@@ -7,7 +7,7 @@ A modern and responsive frontend for an online theatre booking platform, designe
 
 | Home Page | Booking Page |
 |-----------|--------------|
-| ![Home](screenshots/Home.png) | ![Booking](screenshots/MyBooking.png) |  ![Booking](screenshots/MyBooking.png) |  ![Booking](screenshots/MyBooking.png)
+|![Home Page](src/screenshots/Home.png) | ![Browse Show](src/screenshots/BrowseShow.png) |  ![My Booking](src/screenshots/MyBooking.png) | ![Admin Dashboard](src/screenshots/AdminDashboaard.png)
 
 ---
 
